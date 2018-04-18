@@ -50,6 +50,11 @@
          <artifactId>allure-junit-adaptor</artifactId>
          <scope>test</scope>
       </dependency>
+       <!--s3 dependency-->
+      <dependency>
+         <groupId>org.eclipse.hawkbit</groupId>
+         <artifactId>hawkbit-extension-artifact-repository-s3</artifactId>
+      </dependency>
    </dependencies>
 
 </project>
