@@ -777,5 +777,11 @@
             <version>${jayway.awaitility.version}</version>
          </dependency>
       </dependencies>
+       <!--added s3 dependency-->
+       <dependency>
+            <groupId>org.eclipse.hawkbit</groupId>
+            <artifactId>hawkbit-extension-artifact-repository-s3</artifactId>
+            <version>${project.version}</version>
+         </dependency>
    </dependencyManagement>
 </project>
