@@ -11,7 +11,7 @@ ENV MARIADB_DRIVER_VERSION=2.1.2
 # Http port
 EXPOSE 8080
 
-COPY ${workspace}/hawkbit-aeris/hawkbit-runtime/hawkbit-update-server/target/hawkbit-update-server-0.2.0-SNAPSHOT.jar /root/hawkbit-update-server-0.2.0-SNAPSHOT.jar
+COPY /var/lib/jenkins/workspace/hawkbit-aeris/hawkbit-runtime/hawkbit-update-server/target/hawkbit-update-server-0.2.0-SNAPSHOT.jar /root/hawkbit-update-server-0.2.0-SNAPSHOT.jar
 
 # Install mariadb driver
 RUN set -x \
