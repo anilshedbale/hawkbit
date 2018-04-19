@@ -818,6 +818,11 @@
             <artifactId>awaitility</artifactId>
             <version>${jayway.awaitility.version}</version>
          </dependency>
+          <dependency>
+            <groupId>org.eclipse.hawkbit</groupId>
+            <artifactId>hawkbit-extension-artifact-repository-s3</artifactId>
+            <version>${project.version}</version>
+         </dependency>
       </dependencies>
    </dependencyManagement>
 </project>
