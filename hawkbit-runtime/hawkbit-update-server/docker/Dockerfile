@@ -13,7 +13,6 @@ ENV HAWKBIT_HOME=/root/hawkbit \
 # Http port
 EXPOSE 8080
 
-COPY ${workspace}/
 RUN set -x \
     && apk add --no-cache gnupg unzip \
     && apk add --no-cache libressl wget \
