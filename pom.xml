@@ -821,7 +821,7 @@
           <dependency>
             <groupId>org.eclipse.hawkbit</groupId>
             <artifactId>hawkbit-extension-artifact-repository-s3</artifactId>
-            <version>${project.version}</version>
+            <version>0.2.0M3</version>
          </dependency>
       </dependencies>
    </dependencyManagement>
