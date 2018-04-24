@@ -19,7 +19,7 @@ RUN set -x \
         
 RUN set -x \
     #&& cp /var/lib/jenkins/workspace/hawkbit-aeris/hawkbit-runtime/hawkbit-update-server/target/hawkbit-update-server-0.2.0-SNAPSHOT.jar $HAWKBIT_HOME/hawkbit-update-server-0.2.0-SNAPSHOT.jar
-    && cp /var/lib/jenkins/.m2/repository/org/eclipse/hawkbit/hawkbit-update-server/0.2.0-SNAPSHOT/hawkbit-update-server-0.2.0-SNAPSHOT.jar $HAWKBIT_HOME/hawkbit-update-server-0.2.0-SNAPSHOT.jar
+    && cp /var/lib/jenkins/workspace/hawkbit-aeris/hawkbit-runtime/hawkbit-update-server/target/hawkbit-update-server-0.2.0-SNAPSHOT.jar $HAWKBIT_HOME/hawkbit-update-server-0.2.0-SNAPSHOT.jar
 
 #COPY var/lib/jenkins/workspace/hawkbit-aeris/hawkbit-runtime/hawkbit-update-server/target/hawkbit-update-server-0.2.0-SNAPSHOT.jar /root/hawkbit-update-server-0.2.0-SNAPSHOT.jar
 
