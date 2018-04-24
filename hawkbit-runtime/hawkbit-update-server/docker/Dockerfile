@@ -1,9 +1,7 @@
 #Docker file
-FROM alpine
+FROM openjdk:8u121-jre-alpine
 
 MAINTAINER anil.shedbale@aeris.net
-  
-RUN apk update && apk add openjdk8
 
 ENV MARIADB_DRIVER_VERSION=2.1.2
   
