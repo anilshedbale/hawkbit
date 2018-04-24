@@ -16,10 +16,9 @@ RUN set -x \
     && cd $HAWKBIT_HOME \
     && wget -O $JAVA_HOME/lib/ext/mariadb-java-client.jar --no-verbose http://downloads.mariadb.com/Connectors/java/connector-java-$MARIADB_DRIVER_VERSION/mariadb-java-client-$MARIADB_DRIVER_VERSION.jar \
     && wget -O $JAVA_HOME/lib/ext/mariadb-java-client.jar.asc --no-verbose http://downloads.mariadb.com/Connectors/java/connector-java-$MARIADB_DRIVER_VERSION/mariadb-java-client-$MARIADB_DRIVER_VERSION.jar.asc
-        
-RUN set -x \
-    #&& cp /var/lib/jenkins/workspace/hawkbit-aeris/hawkbit-runtime/hawkbit-update-server/target/hawkbit-update-server-0.2.0-SNAPSHOT.jar $HAWKBIT_HOME/hawkbit-update-server-0.2.0-SNAPSHOT.jar
-    && cp /var/lib/jenkins/workspace/hawkbit-aeris/hawkbit-runtime/hawkbit-update-server/target/hawkbit-update-server-0.2.0-SNAPSHOT.jar $HAWKBIT_HOME/hawkbit-update-server-0.2.0-SNAPSHOT.jar
+
+
+COPY /var/lib/jenkins/workspace/hawkbit-aeris/hawkbit-runtime/hawkbit-update-server/target/hawkbit-update-server-0.2.0-SNAPSHOT.jar $HAWKBIT_HOME/hawkbit-update-server-0.2.0-SNAPSHOT.jar
 
 #COPY var/lib/jenkins/workspace/hawkbit-aeris/hawkbit-runtime/hawkbit-update-server/target/hawkbit-update-server-0.2.0-SNAPSHOT.jar /root/hawkbit-update-server-0.2.0-SNAPSHOT.jar
 
