@@ -3,13 +3,17 @@ FROM openjdk:8u121-jre-alpine
 
 MAINTAINER anil.shedbale@aeris.net
 
-ENV MARIADB_DRIVER_VERSION=2.1.2
+ENV MARIADB_DRIVER_VERSION=2.1.2 \
+    HAWKBIT_HOME=/root/hawkbit
   
 # Http port
 EXPOSE 8080
 
 # Install mariadb driver
 RUN set -x \
+    && apk add --no-cache libressl wget \
+    && mkdir -p $HAWKBIT_HOME \
+    && cd $HAWKBIT_HOME \
     && wget -O $JAVA_HOME/lib/ext/mariadb-java-client.jar --no-verbose http://downloads.mariadb.com/Connectors/java/connector-java-$MARIADB_DRIVER_VERSION/mariadb-java-client-$MARIADB_DRIVER_VERSION.jar \
     && wget -O $JAVA_HOME/lib/ext/mariadb-java-client.jar.asc --no-verbose http://downloads.mariadb.com/Connectors/java/connector-java-$MARIADB_DRIVER_VERSION/mariadb-java-client-$MARIADB_DRIVER_VERSION.jar.asc
         
