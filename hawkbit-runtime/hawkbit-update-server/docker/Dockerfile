@@ -19,4 +19,4 @@ COPY hawkbit-runtime/hawkbit-update-server/target/hawkbit-update-server-0.3.0-SN
 WORKDIR /root
 #WORKDIR $HAWKBIT_HOME
 
-ENTRYPOINT ["java","-jar","/root/hawkbit-update-server-0.2.0-SNAPSHOT.jar","--spring.profiles.active=amqp,mysql","-Xmx768m -Xmx768m -XX:MaxMetaspaceSize=250m -XX:MetaspaceSize=250m -Xss300K -XX:+UseG1GC -XX:+UseStringDeduplication -XX:+UseCompressedOops -XX:+HeapDumpOnOutOfMemoryError"]
+ENTRYPOINT ["java","-jar","/root/hawkbit-update-server-0.3.0-SNAPSHOT.jar","--spring.profiles.active=amqp,mysql","-Xmx768m -Xmx768m -XX:MaxMetaspaceSize=250m -XX:MetaspaceSize=250m -Xss300K -XX:+UseG1GC -XX:+UseStringDeduplication -XX:+UseCompressedOops -XX:+HeapDumpOnOutOfMemoryError"]
