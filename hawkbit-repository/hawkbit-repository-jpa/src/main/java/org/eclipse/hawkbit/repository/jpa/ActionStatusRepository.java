@@ -40,6 +40,16 @@ public interface ActionStatusRepository
     Long countByAction(JpaAction action);
 
     /**
+     * Counts {@link ActionStatus} entries of given {@link Action} in
+     * repository.
+     *
+     * @param actionId
+     *            of the action to count status entries for
+     * @return number of actions in repository
+     */
+    long countByActionId(Long actionId);
+
+    /**
      * Retrieves all {@link ActionStatus} entries from repository of given
      * ActionId.
      *
@@ -80,6 +90,6 @@ public interface ActionStatusRepository
      * @return Page with found status messages.
      */
     @Query("SELECT message FROM JpaActionStatus actionstatus JOIN actionstatus.messages message WHERE actionstatus.action.id = :actionId AND message NOT LIKE :filter")
-    Page<String> findMessagesByActionIdAndMessageNotLike(final Pageable pageable, @Param("actionId") Long actionId,
+    Page<String> findMessagesByActionIdAndMessageNotLike(Pageable pageable, @Param("actionId") Long actionId,
             @Param("filter") String filter);
 }

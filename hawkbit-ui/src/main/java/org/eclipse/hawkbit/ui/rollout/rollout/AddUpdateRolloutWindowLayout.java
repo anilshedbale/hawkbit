@@ -48,8 +48,8 @@ import org.eclipse.hawkbit.ui.common.builder.TextAreaBuilder;
 import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilder;
 import org.eclipse.hawkbit.ui.common.builder.WindowBuilder;
 import org.eclipse.hawkbit.ui.filtermanagement.TargetFilterBeanQuery;
-import org.eclipse.hawkbit.ui.management.footer.ActionTypeOptionGroupLayout;
-import org.eclipse.hawkbit.ui.management.footer.ActionTypeOptionGroupLayout.ActionTypeOption;
+import org.eclipse.hawkbit.ui.management.miscs.ActionTypeOptionGroupLayout;
+import org.eclipse.hawkbit.ui.management.miscs.ActionTypeOptionGroupLayout.ActionTypeOption;
 import org.eclipse.hawkbit.ui.rollout.event.RolloutEvent;
 import org.eclipse.hawkbit.ui.rollout.groupschart.GroupsPieChart;
 import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
@@ -78,9 +78,11 @@ import com.vaadin.data.util.converter.StringToIntegerConverter;
 import com.vaadin.data.validator.IntegerRangeValidator;
 import com.vaadin.data.validator.LongRangeValidator;
 import com.vaadin.data.validator.NullValidator;
+import com.vaadin.server.FontAwesome;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.GridLayout;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.OptionGroup;
 import com.vaadin.ui.TabSheet;
@@ -91,17 +93,24 @@ import com.vaadin.ui.themes.ValoTheme;
 /**
  * Rollout add or update popup layout.
  */
+@SuppressWarnings({ "squid:MaximumInheritanceDepth", "squid:S2160" })
 public class AddUpdateRolloutWindowLayout extends GridLayout {
 
-    private static final long serialVersionUID = 2999293468801479916L;
+    private static final long serialVersionUID = 1L;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AddUpdateRolloutWindowLayout.class);
 
     private static final String MESSAGE_ROLLOUT_FIELD_VALUE_RANGE = "message.rollout.field.value.range";
 
+    private static final String MESSAGE_ROLLOUT_MAX_GROUP_SIZE_EXCEEDED = "message.rollout.max.group.size.exceeded";
+
     private static final String MESSAGE_ROLLOUT_FILTER_TARGET_EXISTS = "message.rollout.filter.target.exists";
 
     private static final String MESSAGE_ENTER_NUMBER = "message.enter.number";
+
+    private static final String APPROVAL_BUTTON_LABEL = "button.approve";
+
+    private static final String DENY_BUTTON_LABEL = "button.deny";
 
     private final ActionTypeOptionGroupLayout actionTypeOptionGroupLayout;
 
@@ -147,6 +156,10 @@ public class AddUpdateRolloutWindowLayout extends GridLayout {
 
     private OptionGroup errorThresholdOptionGroup;
 
+    private Label approvalLabel;
+
+    private HorizontalLayout approvalButtonsLayout;
+
     private CommonDialogWindow window;
 
     private boolean editRolloutEnabled;
@@ -163,10 +176,15 @@ public class AddUpdateRolloutWindowLayout extends GridLayout {
 
     private GroupsLegendLayout groupsLegendLayout;
 
+    private OptionGroup approveButtonsGroup;
+
+    private TextField approvalRemarkField;
+
     private final transient RolloutGroupConditions defaultRolloutGroupConditions;
 
     private final NullValidator nullValidator = new NullValidator(null, false);
 
+    @SuppressWarnings("squid:S00107")
     AddUpdateRolloutWindowLayout(final RolloutManagement rolloutManagement, final TargetManagement targetManagement,
             final UINotification uiNotification, final UiProperties uiProperties, final EntityFactory entityFactory,
             final VaadinMessageSource i18n, final UIEventBus eventBus,
@@ -209,6 +227,11 @@ public class AddUpdateRolloutWindowLayout extends GridLayout {
 
             if (editRolloutEnabled) {
                 editRollout();
+                if (rollout.getStatus().equals(Rollout.RolloutStatus.WAITING_FOR_APPROVAL)) {
+                    rolloutManagement.approveOrDeny(rollout.getId(),
+                            (Rollout.ApprovalDecision) approveButtonsGroup.getValue(), approvalRemarkField.getValue());
+                    eventBus.publish(this, RolloutEvent.UPDATE_ROLLOUT);
+                }
                 return;
             }
             createRollout();
@@ -264,7 +287,7 @@ public class AddUpdateRolloutWindowLayout extends GridLayout {
             } catch (final EntityNotFoundException | EntityReadOnlyException e) {
                 LOGGER.warn("Rollout was deleted. Redirect to Rollouts overview.", e);
                 uiNotification.displayWarning(
-                        "Rollout with name " + rolloutName.getValue() + " was deleted. Update is not poosible");
+                        "Rollout with name " + rolloutName.getValue() + " was deleted. Update is not possible");
                 eventBus.publish(this, RolloutEvent.SHOW_ROLLOUTS);
                 return;
             }
@@ -338,7 +361,7 @@ public class AddUpdateRolloutWindowLayout extends GridLayout {
 
         private int getErrorThresholdPercentage(final int amountGroup) {
             int errorThresoldPercent = Integer.parseInt(errorThreshold.getValue());
-            if (errorThresholdOptionGroup.getValue().equals(ERRORTHRESOLDOPTIONS.COUNT.getValue())) {
+            if (errorThresholdOptionGroup.getValue().equals(ERROR_THRESHOLD_OPTIONS.COUNT.getValue())) {
                 final int groupSize = (int) Math.ceil((double) totalTargetsCount / (double) amountGroup);
                 final int erroThresoldCount = Integer.parseInt(errorThreshold.getValue());
                 errorThresoldPercent = (int) Math.ceil(((float) erroThresoldCount / (float) groupSize) * 100);
@@ -367,8 +390,8 @@ public class AddUpdateRolloutWindowLayout extends GridLayout {
 
     private CommonDialogWindow createWindow() {
         return new WindowBuilder(SPUIDefinitions.CREATE_UPDATE_WINDOW)
-                .caption(i18n.getMessage("caption.configure.rollout")).content(this).layout(this).i18n(i18n)
-                .helpLink(uiProperties.getLinks().getDocumentation().getRolloutView())
+                .caption(i18n.getMessage("caption.create.new", i18n.getMessage("caption.rollout"))).content(this)
+                .layout(this).i18n(i18n).helpLink(uiProperties.getLinks().getDocumentation().getRolloutView())
                 .saveDialogCloseListener(new SaveOnDialogCloseListener()).buildCommonDialogWindow();
     }
 
@@ -408,6 +431,12 @@ public class AddUpdateRolloutWindowLayout extends GridLayout {
         rollout = null;
         groupsDefinitionTabs.setVisible(true);
         groupsDefinitionTabs.setSelectedTab(0);
+
+        approvalLabel.setVisible(false);
+        approvalButtonsLayout.setVisible(false);
+        approveButtonsGroup.clear();
+        approvalRemarkField.clear();
+        approveButtonsGroup.removeAllValidators();
     }
 
     private void addGroupsDefinitionTabs() {
@@ -438,7 +467,7 @@ public class AddUpdateRolloutWindowLayout extends GridLayout {
 
         setSpacing(true);
         setSizeUndefined();
-        setRows(7);
+        setRows(8);
         setColumns(4);
         setStyleName("marginTop");
         setColumnExpandRatio(3, 1);
@@ -472,6 +501,9 @@ public class AddUpdateRolloutWindowLayout extends GridLayout {
 
         addComponent(groupsDefinitionTabs, 0, 6, 3, 6);
 
+        addComponent(approvalLabel, 0, 7);
+        addComponent(approvalButtonsLayout, 1, 7, 3, 7);
+
         rolloutName.focus();
     }
 
@@ -486,13 +518,12 @@ public class AddUpdateRolloutWindowLayout extends GridLayout {
         return new LabelBuilder().name(i18n.getMessage(key)).buildLabel();
     }
 
-    private TextField createTextField(final String in18Key, final String id) {
-        return new TextFieldBuilder().prompt(i18n.getMessage(in18Key)).immediate(true).id(id).buildTextComponent();
+    private TextField createTextField(final String in18Key, final String id, final int maxLength) {
+        return new TextFieldBuilder(maxLength).prompt(i18n.getMessage(in18Key)).id(id).buildTextComponent();
     }
 
     private TextField createIntegerTextField(final String in18Key, final String id) {
-        final TextField textField = createTextField(in18Key, id);
-        textField.setNullRepresentation("");
+        final TextField textField = createTextField(in18Key, id, 32);
         textField.setConverter(new StringToIntegerConverter());
         textField.setConversionError(i18n.getMessage(MESSAGE_ENTER_NUMBER));
         textField.setSizeUndefined();
@@ -537,6 +568,8 @@ public class AddUpdateRolloutWindowLayout extends GridLayout {
 
         groupsLegendLayout = new GroupsLegendLayout(i18n);
 
+        approvalLabel = getLabel("label.approval.decision");
+        approvalButtonsLayout = createApprovalLayout();
     }
 
     private void displayValidationStatus(final DefineGroupsLayout.ValidationStatus status) {
@@ -606,6 +639,29 @@ public class AddUpdateRolloutWindowLayout extends GridLayout {
         return layout;
     }
 
+    private HorizontalLayout createApprovalLayout() {
+        approveButtonsGroup = new OptionGroup();
+        approveButtonsGroup.setId(UIComponentIdProvider.ROLLOUT_APPROVAL_OPTIONGROUP_ID);
+        approveButtonsGroup.addStyleName(ValoTheme.OPTIONGROUP_SMALL);
+        approveButtonsGroup.addStyleName(ValoTheme.OPTIONGROUP_HORIZONTAL);
+        approveButtonsGroup.addStyleName("custom-option-group");
+        approveButtonsGroup.addItems(Rollout.ApprovalDecision.APPROVED, Rollout.ApprovalDecision.DENIED);
+
+        approveButtonsGroup.setItemCaption(Rollout.ApprovalDecision.APPROVED, i18n.getMessage(APPROVAL_BUTTON_LABEL));
+        approveButtonsGroup.setItemIcon(Rollout.ApprovalDecision.APPROVED, FontAwesome.CHECK);
+        approveButtonsGroup.setItemCaption(Rollout.ApprovalDecision.DENIED, i18n.getMessage(DENY_BUTTON_LABEL));
+        approveButtonsGroup.setItemIcon(Rollout.ApprovalDecision.DENIED, FontAwesome.TIMES);
+
+        approvalRemarkField = createTextField("label.approval.remark",
+                UIComponentIdProvider.ROLLOUT_APPROVAL_REMARK_FIELD_ID, Rollout.APPROVAL_REMARK_MAX_SIZE);
+        approvalRemarkField.setWidth(100.0F, Unit.PERCENTAGE);
+
+        final HorizontalLayout layout = new HorizontalLayout(approveButtonsGroup, approvalRemarkField);
+        layout.setWidth(100.0F, Unit.PERCENTAGE);
+        layout.setExpandRatio(approvalRemarkField, 1.0F);
+        return layout;
+    }
+
     private static Label createCountLabel() {
         final Label groupSize = new LabelBuilder().visible(false).name("").buildLabel();
         groupSize.addStyleName(ValoTheme.LABEL_TINY + " " + "rollout-target-count-message");
@@ -615,12 +671,10 @@ public class AddUpdateRolloutWindowLayout extends GridLayout {
     }
 
     private static TextArea createTargetFilterQuery() {
-        final TextArea filterField = new TextAreaBuilder().style("text-area-style")
-                .id(UIComponentIdProvider.ROLLOUT_TARGET_FILTER_QUERY_FIELD)
-                .maxLengthAllowed(SPUILabelDefinitions.TARGET_FILTER_QUERY_TEXT_FIELD_LENGTH).buildTextComponent();
+        final TextArea filterField = new TextAreaBuilder(TargetFilterQuery.QUERY_MAX_SIZE).style("text-area-style")
+                .id(UIComponentIdProvider.ROLLOUT_TARGET_FILTER_QUERY_FIELD).buildTextComponent();
 
         filterField.setId(UIComponentIdProvider.ROLLOUT_TARGET_FILTER_QUERY_FIELD);
-        filterField.setNullRepresentation("");
         filterField.setEnabled(false);
         filterField.setSizeUndefined();
         return filterField;
@@ -628,7 +682,7 @@ public class AddUpdateRolloutWindowLayout extends GridLayout {
 
     private OptionGroup createErrorThresholdOptionGroup() {
         final OptionGroup errorThresoldOptions = new OptionGroup();
-        for (final ERRORTHRESOLDOPTIONS option : ERRORTHRESOLDOPTIONS.values()) {
+        for (final ERROR_THRESHOLD_OPTIONS option : ERROR_THRESHOLD_OPTIONS.values()) {
             errorThresoldOptions.addItem(option.getValue());
         }
         errorThresoldOptions.setId(UIComponentIdProvider.ROLLOUT_ERROR_THRESOLD_OPTION_ID);
@@ -642,8 +696,8 @@ public class AddUpdateRolloutWindowLayout extends GridLayout {
     private void listenerOnErrorThresoldOptionChange(final ValueChangeEvent event) {
         errorThreshold.clear();
         errorThreshold.removeAllValidators();
-        if (event.getProperty().getValue().equals(ERRORTHRESOLDOPTIONS.COUNT.getValue())) {
-            errorThreshold.addValidator(new ErrorThresoldOptionValidator());
+        if (event.getProperty().getValue().equals(ERROR_THRESHOLD_OPTIONS.COUNT.getValue())) {
+            errorThreshold.addValidator(new ErrorThresholdOptionValidator());
         } else {
             errorThreshold.addValidator(new ThresholdFieldValidator());
         }
@@ -734,6 +788,7 @@ public class AddUpdateRolloutWindowLayout extends GridLayout {
             groupsLegendLayout.populateTotalTargets(totalTargetsCount);
             defineGroupsLayout.setTargetFilter(filterQueryString);
         }
+        noOfGroups.markAsDirty();
         onGroupNumberChange(event);
     }
 
@@ -773,14 +828,12 @@ public class AddUpdateRolloutWindowLayout extends GridLayout {
     }
 
     private void setDefaultSaveStartGroupOption() {
-        errorThresholdOptionGroup.setValue(ERRORTHRESOLDOPTIONS.PERCENT.getValue());
+        errorThresholdOptionGroup.setValue(ERROR_THRESHOLD_OPTIONS.PERCENT.getValue());
     }
 
-    private TextArea createDescription() {
-        final TextArea descriptionField = new TextAreaBuilder().style("text-area-style")
-                .prompt(i18n.getMessage("textfield.description")).id(UIComponentIdProvider.ROLLOUT_DESCRIPTION_ID)
-                .buildTextComponent();
-        descriptionField.setNullRepresentation("");
+    private static TextArea createDescription() {
+        final TextArea descriptionField = new TextAreaBuilder(Rollout.DESCRIPTION_MAX_SIZE).style("text-area-style")
+                .id(UIComponentIdProvider.ROLLOUT_DESCRIPTION_ID).buildTextComponent();
         descriptionField.setSizeUndefined();
         return descriptionField;
     }
@@ -806,6 +859,7 @@ public class AddUpdateRolloutWindowLayout extends GridLayout {
         final TextField noOfGroupsField = createIntegerTextField("prompt.number.of.groups",
                 UIComponentIdProvider.ROLLOUT_NO_OF_GROUPS_ID);
         noOfGroupsField.addValidator(new GroupNumberValidator());
+        noOfGroupsField.addValidator(new GroupSizeValidator());
         noOfGroupsField.setMaxLength(3);
         noOfGroupsField.addValueChangeListener(this::onGroupNumberChange);
         return noOfGroupsField;
@@ -846,14 +900,16 @@ public class AddUpdateRolloutWindowLayout extends GridLayout {
     }
 
     private TextField createRolloutNameField() {
-        final TextField rolloutNameField = createTextField("textfield.name",
-                UIComponentIdProvider.ROLLOUT_NAME_FIELD_ID);
+        final TextField rolloutNameField = new TextFieldBuilder(Rollout.NAME_MAX_SIZE)
+                .prompt(i18n.getMessage("textfield.name")).id(UIComponentIdProvider.ROLLOUT_NAME_FIELD_ID)
+                .required(true, i18n).buildTextComponent();
+
         rolloutNameField.setSizeUndefined();
         return rolloutNameField;
     }
 
-    class ErrorThresoldOptionValidator implements Validator {
-        private static final long serialVersionUID = 9049939751976326550L;
+    class ErrorThresholdOptionValidator implements Validator {
+        private static final long serialVersionUID = 1L;
 
         @Override
         public void validate(final Object value) {
@@ -881,6 +937,7 @@ public class AddUpdateRolloutWindowLayout extends GridLayout {
     }
 
     class TargetExistsValidator implements Validator {
+
         private static final long serialVersionUID = 1L;
 
         @Override
@@ -893,7 +950,7 @@ public class AddUpdateRolloutWindowLayout extends GridLayout {
     }
 
     class ThresholdFieldValidator implements Validator {
-        private static final long serialVersionUID = 9049939751976326550L;
+        private static final long serialVersionUID = 1L;
 
         @Override
         public void validate(final Object value) {
@@ -905,13 +962,29 @@ public class AddUpdateRolloutWindowLayout extends GridLayout {
     }
 
     class GroupNumberValidator implements Validator {
-        private static final long serialVersionUID = 9043919751971326521L;
+        private static final long serialVersionUID = 1L;
 
         @Override
         public void validate(final Object value) {
             if (value != null) {
-                new IntegerRangeValidator(i18n.getMessage(MESSAGE_ROLLOUT_FIELD_VALUE_RANGE, 1, 500), 1, 500)
-                        .validate(Integer.valueOf(value.toString()));
+                final int maxGroups = quotaManagement.getMaxRolloutGroupsPerRollout();
+                new IntegerRangeValidator(i18n.getMessage(MESSAGE_ROLLOUT_FIELD_VALUE_RANGE, 1, maxGroups), 1,
+                        maxGroups).validate(Integer.valueOf(value.toString()));
+            }
+        }
+    }
+
+    class GroupSizeValidator implements Validator {
+        private static final long serialVersionUID = 0L;
+
+        @Override
+        public void validate(final Object value) {
+            if (value != null && totalTargetsCount != null) {
+                final int maxGroupSize = quotaManagement.getMaxTargetsPerRolloutGroup();
+                if (getGroupSize() > maxGroupSize) {
+                    final String msg = i18n.getMessage(MESSAGE_ROLLOUT_MAX_GROUP_SIZE_EXCEEDED, maxGroupSize);
+                    throw new InvalidValueException(msg);
+                }
             }
         }
     }
@@ -940,11 +1013,20 @@ public class AddUpdateRolloutWindowLayout extends GridLayout {
             groupsDefinitionTabs.setSelectedTab(1);
 
             window.clearOriginalValues();
+            totalTargetsCount = targetManagement.countByRsql(rollout.getTargetFilterQuery());
+            groupsLegendLayout.populateTotalTargets(totalTargetsCount);
         } else {
             editRolloutEnabled = true;
             if (rollout.getStatus() != Rollout.RolloutStatus.READY) {
                 disableRequiredFieldsOnEdit();
             }
+
+            if (rollout.getStatus() == Rollout.RolloutStatus.WAITING_FOR_APPROVAL) {
+                approvalButtonsLayout.setVisible(true);
+                approveButtonsGroup.addValidator(nullValidator);
+                approvalLabel.setVisible(true);
+            }
+
             rolloutName.setValue(rollout.getName());
             groupsDefinitionTabs.setVisible(false);
 
@@ -963,10 +1045,10 @@ public class AddUpdateRolloutWindowLayout extends GridLayout {
             updateGroupsChart(rolloutGroupManagement
                     .findByRollout(new PageRequest(0, quotaManagement.getMaxRolloutGroupsPerRollout()), rollout.getId())
                     .getContent(), rollout.getTotalTargets());
-        }
 
-        totalTargetsCount = targetManagement.countByRsql(rollout.getTargetFilterQuery());
-        groupsLegendLayout.populateTotalTargets(totalTargetsCount);
+            totalTargetsCount = rollout.getTotalTargets();
+            groupsLegendLayout.populateTotalTargets(totalTargetsCount);
+        }
     }
 
     private void disableRequiredFieldsOnEdit() {
@@ -1022,12 +1104,15 @@ public class AddUpdateRolloutWindowLayout extends GridLayout {
         }
     }
 
-    private enum ERRORTHRESOLDOPTIONS {
-        PERCENT("%"), COUNT("Count");
+    private enum ERROR_THRESHOLD_OPTIONS {
 
-        String value;
+        PERCENT("%"),
 
-        ERRORTHRESOLDOPTIONS(final String val) {
+        COUNT("Count");
+
+        private final String value;
+
+        ERROR_THRESHOLD_OPTIONS(final String val) {
             value = val;
         }
 

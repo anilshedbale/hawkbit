@@ -21,11 +21,12 @@ import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilder;
 import org.eclipse.hawkbit.ui.common.builder.WindowBuilder;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.customrenderers.renderers.HtmlButtonRenderer;
-import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleSmallNoBorder;
+import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorder;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
+import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus;
@@ -236,10 +237,8 @@ public abstract class AbstractMetadataPopupLayout<E extends NamedVersionedEntity
     }
 
     private TextField createKeyTextField() {
-        final TextField keyField = new TextFieldBuilder().caption(i18n.getMessage("textfield.key")).required(true)
-                .prompt(i18n.getMessage("textfield.key")).immediate(true)
-                .id(UIComponentIdProvider.METADATA_KEY_FIELD_ID).maxLengthAllowed(MetaData.KEY_MAX_SIZE)
-                .validator(new EmptyStringValidator(i18n)).buildTextComponent();
+        final TextField keyField = new TextFieldBuilder(MetaData.KEY_MAX_SIZE).caption(i18n.getMessage("textfield.key"))
+                .required(true, i18n).id(UIComponentIdProvider.METADATA_KEY_FIELD_ID).buildTextComponent();
         keyField.addTextChangeListener(this::onKeyChange);
         keyField.setTextChangeEventMode(TextChangeEventMode.EAGER);
         keyField.setWidth("100%");
@@ -247,11 +246,8 @@ public abstract class AbstractMetadataPopupLayout<E extends NamedVersionedEntity
     }
 
     private TextArea createValueTextField() {
-        valueTextArea = new TextAreaBuilder().caption(i18n.getMessage("textfield.value")).required(true)
-                .validator(new EmptyStringValidator(i18n)).prompt(i18n.getMessage("textfield.value")).immediate(true)
-                .id(UIComponentIdProvider.METADATA_VALUE_ID).maxLengthAllowed(MetaData.VALUE_MAX_SIZE)
-                .buildTextComponent();
-        valueTextArea.setNullRepresentation("");
+        valueTextArea = new TextAreaBuilder(MetaData.VALUE_MAX_SIZE).caption(i18n.getMessage("textfield.value"))
+                .required(true, i18n).id(UIComponentIdProvider.METADATA_VALUE_ID).buildTextComponent();
         valueTextArea.setSizeFull();
         valueTextArea.setHeight(100, Unit.PERCENTAGE);
         valueTextArea.addTextChangeListener(this::onValueChange);
@@ -285,9 +281,9 @@ public abstract class AbstractMetadataPopupLayout<E extends NamedVersionedEntity
         final String key = (String) item.getItemProperty(KEY).getValue();
 
         final ConfirmationDialog confirmDialog = new ConfirmationDialog(
-                i18n.getMessage("caption.metadata.delete.action.confirmbox"),
-                i18n.getMessage("message.confirm.delete.metadata", key), i18n.getMessage("button.ok"),
-                i18n.getMessage("button.cancel"), ok -> {
+                i18n.getMessage("caption.entity.delete.action.confirmbox"),
+                i18n.getMessage("message.confirm.delete.metadata", key), i18n.getMessage(UIMessageIdProvider.BUTTON_OK),
+                i18n.getMessage(UIMessageIdProvider.BUTTON_CANCEL), ok -> {
                     if (ok) {
                         handleOkDeleteMetadata(event, key);
                     }
@@ -327,8 +323,7 @@ public abstract class AbstractMetadataPopupLayout<E extends NamedVersionedEntity
 
     private Button createAddIcon() {
         addIcon = SPUIComponentProvider.getButton(UIComponentIdProvider.METADTA_ADD_ICON_ID,
-                i18n.getMessage("button.save"), null, null, false, FontAwesome.PLUS,
-                SPUIButtonStyleSmallNoBorder.class);
+                i18n.getMessage("button.save"), null, null, false, FontAwesome.PLUS, SPUIButtonStyleNoBorder.class);
         addIcon.addClickListener(event -> onAdd());
         return addIcon;
     }

@@ -8,7 +8,9 @@
  */
 package org.eclipse.hawkbit.ui.dd.criteria;
 
-import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
+import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
+import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.vaadin.spring.annotation.SpringComponent;
 import com.vaadin.spring.annotation.UIScope;
@@ -21,18 +23,19 @@ import com.vaadin.spring.annotation.UIScope;
 @UIScope
 public final class UploadViewClientCriterion extends ServerViewClientCriterion {
 
-    /**
-     * serialVersionUID.
-     */
     private static final long serialVersionUID = 6271501901430079353L;
 
     private static final ServerViewComponentClientCriterion[] COMPONENT_CRITERIA = createViewComponentClientCriteria();
 
     /**
      * Constructor.
+     * 
+     * @param i18n
+     *            VaadinMessageSource
      */
-    public UploadViewClientCriterion() {
-        super(COMPONENT_CRITERIA);
+    @Autowired
+    public UploadViewClientCriterion(final VaadinMessageSource i18n) {
+        super(i18n.getMessage(UIMessageIdProvider.MESSAGE_ACTION_NOT_ALLOWED), COMPONENT_CRITERIA);
     }
 
     /**
@@ -42,19 +45,6 @@ public final class UploadViewClientCriterion extends ServerViewClientCriterion {
      * @return accept criterion elements
      */
     static ServerViewComponentClientCriterion[] createViewComponentClientCriteria() {
-        ServerViewComponentClientCriterion[] criteria = new ServerViewComponentClientCriterion[2];
-
-        // Upload type acceptable components.
-        criteria[0] = ServerViewComponentClientCriterion.createBuilder()
-                .dragSourceIdPrefix(UIComponentIdProvider.UPLOAD_TYPE_BUTTON_PREFIX)
-                .dropTargetIdPrefixes(UIComponentIdProvider.DELETE_BUTTON_WRAPPER_ID)
-                .dropAreaIds(UIComponentIdProvider.DELETE_BUTTON_WRAPPER_ID).build();
-        // Upload software module table acceptable components.
-        criteria[1] = ServerViewComponentClientCriterion.createBuilder()
-                .dragSourceIdPrefix(UIComponentIdProvider.UPLOAD_SOFTWARE_MODULE_TABLE)
-                .dropTargetIdPrefixes(UIComponentIdProvider.DELETE_BUTTON_WRAPPER_ID)
-                .dropAreaIds(UIComponentIdProvider.DELETE_BUTTON_WRAPPER_ID).build();
-
-        return criteria;
+        return new ServerViewComponentClientCriterion[0];
     }
 }

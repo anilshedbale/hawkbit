@@ -21,7 +21,6 @@ import org.eclipse.hawkbit.ui.distributions.state.ManageDistUIState;
 import org.eclipse.hawkbit.ui.filtermanagement.event.CustomFilterUIEvent;
 import org.eclipse.hawkbit.ui.filtermanagement.footer.TargetFilterCountMessageLabel;
 import org.eclipse.hawkbit.ui.filtermanagement.state.FilterManagementUIState;
-import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,7 +70,7 @@ public class FilterManagementView extends VerticalLayout implements View {
             final UINotification notification, final UiProperties uiProperties, final EntityFactory entityFactory,
             final AutoCompleteTextFieldComponent queryTextField, final ManageDistUIState manageDistUIState,
             final TargetManagement targetManagement) {
-        this.targetFilterHeader = new TargetFilterHeader(eventBus, filterManagementUIState, permissionChecker);
+        this.targetFilterHeader = new TargetFilterHeader(eventBus, filterManagementUIState, permissionChecker, i18n);
         this.targetFilterTable = new TargetFilterTable(i18n, notification, eventBus, filterManagementUIState,
                 targetFilterQueryManagement, manageDistUIState, targetManagement, permissionChecker);
         this.createNewFilterHeader = new CreateOrUpdateFilterHeader(i18n, eventBus, filterManagementUIState,
@@ -171,7 +170,6 @@ public class FilterManagementView extends VerticalLayout implements View {
     private HorizontalLayout addTargetFilterMessageLabel() {
         final HorizontalLayout messageLabelLayout = new HorizontalLayout();
         messageLabelLayout.addComponent(targetFilterCountMessageLabel);
-        messageLabelLayout.addStyleName(SPUIStyleDefinitions.FOOTER_LAYOUT);
         return messageLabelLayout;
     }
 

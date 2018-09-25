@@ -75,7 +75,7 @@ public interface SoftwareModuleRepository
     @Transactional
     @Query("UPDATE JpaSoftwareModule b SET b.deleted = 1, b.lastModifiedAt = :lastModifiedAt, b.lastModifiedBy = :lastModifiedBy WHERE b.id IN :ids")
     void deleteSoftwareModule(@Param("lastModifiedAt") Long modifiedAt, @Param("lastModifiedBy") String modifiedBy,
-            @Param("ids") final Long... ids);
+            @Param("ids") Long... ids);
 
     /**
      * @param pageable
@@ -86,6 +86,18 @@ public interface SoftwareModuleRepository
      *         {@link DistributionSet}.
      */
     Page<SoftwareModule> findByAssignedToId(Pageable pageable, Long setId);
+
+    /**
+     * Count the software modules which are assigned to the distribution set
+     * with the given ID.
+     * 
+     * @param setId
+     *            the distribution set ID
+     * 
+     * @return the number of software modules matching the given distribution
+     *         set ID.
+     */
+    long countByAssignedToId(Long setId);
 
     /**
      * @param pageable

@@ -98,21 +98,18 @@ public class TargetAddUpdateWindowLayout extends CustomComponent {
     }
 
     private void createRequiredComponents() {
-        controllerIDTextField = createTextField("prompt.target.id", UIComponentIdProvider.TARGET_ADD_CONTROLLER_ID);
+        controllerIDTextField = new TextFieldBuilder(Target.CONTROLLER_ID_MAX_SIZE)
+                .caption(i18n.getMessage("prompt.target.id")).required(true, i18n)
+                .id(UIComponentIdProvider.TARGET_ADD_CONTROLLER_ID).buildTextComponent();
         controllerIDTextField
                 .addValidator(new RegexpValidator("[.\\S]*", i18n.getMessage("message.target.whitespace.check")));
-        nameTextField = createTextField("textfield.name", UIComponentIdProvider.TARGET_ADD_NAME);
+        nameTextField = new TextFieldBuilder(Target.NAME_MAX_SIZE).caption(i18n.getMessage("textfield.name"))
+                .id(UIComponentIdProvider.TARGET_ADD_NAME).buildTextComponent();
         nameTextField.setRequired(false);
 
-        descTextArea = new TextAreaBuilder().caption(i18n.getMessage("textfield.description")).style("text-area-style")
-                .prompt(i18n.getMessage("textfield.description")).immediate(true)
+        descTextArea = new TextAreaBuilder(Target.DESCRIPTION_MAX_SIZE)
+                .caption(i18n.getMessage("textfield.description")).style("text-area-style")
                 .id(UIComponentIdProvider.TARGET_ADD_DESC).buildTextComponent();
-        descTextArea.setNullRepresentation("");
-    }
-
-    private TextField createTextField(final String in18Key, final String id) {
-        return new TextFieldBuilder().caption(i18n.getMessage(in18Key)).required(true).prompt(i18n.getMessage(in18Key))
-                .immediate(true).id(id).buildTextComponent();
     }
 
     private void buildLayout() {
@@ -153,8 +150,9 @@ public class TargetAddUpdateWindowLayout extends CustomComponent {
 
     public Window createNewWindow() {
         window = new WindowBuilder(SPUIDefinitions.CREATE_UPDATE_WINDOW)
-                .caption(i18n.getMessage(UIComponentIdProvider.TARGET_ADD_CAPTION)).content(this).layout(formLayout)
-                .i18n(i18n).saveDialogCloseListener(new SaveOnDialogCloseListener()).buildCommonDialogWindow();
+                .caption(i18n.getMessage("caption.create.new", i18n.getMessage("caption.target"))).content(this)
+                .layout(formLayout).i18n(i18n).saveDialogCloseListener(new SaveOnDialogCloseListener())
+                .buildCommonDialogWindow();
         return window;
     }
 
@@ -174,6 +172,7 @@ public class TargetAddUpdateWindowLayout extends CustomComponent {
         }
         populateValuesOfTarget(target.get());
         createNewWindow();
+        window.setCaption(i18n.getMessage("caption.update", i18n.getMessage("caption.target")));
         window.addStyleName("target-update-window");
         return window;
     }

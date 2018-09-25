@@ -14,6 +14,7 @@ import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
+import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.addons.lazyquerycontainer.BeanQueryFactory;
 import org.vaadin.addons.lazyquerycontainer.LazyQueryContainer;
@@ -75,6 +76,11 @@ public class ActionStatusMsgGrid extends AbstractGrid<LazyQueryContainer> {
     }
 
     @Override
+    protected boolean doSubscribeToEventBus() {
+        return false;
+    }
+
+    @Override
     protected LazyQueryContainer createContainer() {
         configureQueryFactory();
         return new LazyQueryContainer(new LazyQueryDefinition(true, SPUIDefinitions.PAGE_SIZE, null), targetQF);
@@ -122,7 +128,8 @@ public class ActionStatusMsgGrid extends AbstractGrid<LazyQueryContainer> {
     @Override
     protected void setColumnHeaderNames() {
         getColumn(ProxyMessage.PXY_MSG_ID).setHeaderCaption("##");
-        getColumn(ProxyMessage.PXY_MSG_VALUE).setHeaderCaption(SPUIDefinitions.ACTION_HIS_TBL_MSGS);
+        getColumn(ProxyMessage.PXY_MSG_VALUE)
+                .setHeaderCaption(i18n.getMessage(UIMessageIdProvider.CAPTION_ACTION_MESSAGES));
     }
 
     @Override
@@ -207,4 +214,5 @@ public class ActionStatusMsgGrid extends AbstractGrid<LazyQueryContainer> {
             return null;
         }
     }
+
 }

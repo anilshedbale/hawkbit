@@ -13,12 +13,14 @@ import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
 import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilder;
 import org.eclipse.hawkbit.ui.components.SPUIButton;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
-import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleSmallNoBorder;
+import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorder;
 import org.eclipse.hawkbit.ui.filtermanagement.event.CustomFilterUIEvent;
 import org.eclipse.hawkbit.ui.filtermanagement.state.FilterManagementUIState;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
+import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
+import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
@@ -51,6 +53,8 @@ public class TargetFilterHeader extends VerticalLayout {
 
     private SPUIButton searchResetIcon;
 
+    private final VaadinMessageSource i18n;
+
     /**
      * Constructor for TargetFilterHeader
      * 
@@ -60,12 +64,15 @@ public class TargetFilterHeader extends VerticalLayout {
      *            FilterManagementUIState
      * @param permissionChecker
      *            SpPermissionChecker
+     * @param i18n
+     *            VaadinMessageSource
      */
     public TargetFilterHeader(final UIEventBus eventBus, final FilterManagementUIState filterManagementUIState,
-            final SpPermissionChecker permissionChecker) {
+            final SpPermissionChecker permissionChecker, final VaadinMessageSource i18n) {
         this.eventBus = eventBus;
         this.filterManagementUIState = filterManagementUIState;
         this.permissionChecker = permissionChecker;
+        this.i18n = i18n;
 
         createComponents();
         buildLayout();
@@ -108,10 +115,12 @@ public class TargetFilterHeader extends VerticalLayout {
     }
 
     private Button createAddButton() {
-        final Button button = SPUIComponentProvider.getButton(UIComponentIdProvider.TARGET_FILTER_ADD_ICON_ID, "", "",
-                null, false, FontAwesome.PLUS, SPUIButtonStyleSmallNoBorder.class);
+        final Button button = SPUIComponentProvider.getButton(UIComponentIdProvider.TARGET_FILTER_ADD_ICON_ID, "",
+                i18n.getMessage(UIMessageIdProvider.TOOLTIP_ADD), null, false, FontAwesome.PLUS,
+                SPUIButtonStyleNoBorder.class);
         button.addClickListener(event -> addNewFilter());
         return button;
+
     }
 
     private void addNewFilter() {
@@ -122,7 +131,8 @@ public class TargetFilterHeader extends VerticalLayout {
     }
 
     private TextField createSearchField() {
-        final TextField campSearchTextField = new TextFieldBuilder(UIComponentIdProvider.TARGET_FILTER_SEARCH_TEXT)
+        final TextField campSearchTextField = new TextFieldBuilder(64)
+                .id(UIComponentIdProvider.TARGET_FILTER_SEARCH_TEXT)
                 .createSearchField(event -> searchBy(event.getText()));
         campSearchTextField.setWidth(500.0F, Unit.PIXELS);
         return campSearchTextField;
@@ -135,10 +145,12 @@ public class TargetFilterHeader extends VerticalLayout {
 
     private SPUIButton createSearchResetIcon() {
         final SPUIButton button = (SPUIButton) SPUIComponentProvider.getButton(
-                UIComponentIdProvider.TARGET_FILTER_TBL_SEARCH_RESET_ID, "", "", null, false, FontAwesome.SEARCH,
-                SPUIButtonStyleSmallNoBorder.class);
+                UIComponentIdProvider.TARGET_FILTER_TBL_SEARCH_RESET_ID, "",
+                i18n.getMessage(UIMessageIdProvider.TOOLTIP_SEARCH), null, false, FontAwesome.SEARCH,
+                SPUIButtonStyleNoBorder.class);
         button.addClickListener(event -> onSearchResetClick());
         return button;
+
     }
 
     private void onSearchResetClick() {
@@ -156,6 +168,7 @@ public class TargetFilterHeader extends VerticalLayout {
         searchResetIcon.addStyleName(SPUIDefinitions.FILTER_RESET_ICON);
         searchResetIcon.toggleIcon(FontAwesome.TIMES);
         searchResetIcon.setData(Boolean.TRUE);
+        searchResetIcon.setDescription(i18n.getMessage(UIMessageIdProvider.TOOLTIP_RESET));
         searchField.removeStyleName(SPUIDefinitions.FILTER_BOX_HIDE);
         searchField.setVisible(true);
         searchField.focus();
@@ -167,6 +180,7 @@ public class TargetFilterHeader extends VerticalLayout {
         searchResetIcon.removeStyleName(SPUIDefinitions.FILTER_RESET_ICON);
         searchResetIcon.toggleIcon(FontAwesome.SEARCH);
         searchResetIcon.setData(Boolean.FALSE);
+        searchResetIcon.setDescription(i18n.getMessage(UIMessageIdProvider.TOOLTIP_SEARCH));
         resetSearchText();
 
     }

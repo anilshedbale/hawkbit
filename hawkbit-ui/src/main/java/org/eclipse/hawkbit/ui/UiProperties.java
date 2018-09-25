@@ -62,6 +62,8 @@ public class UiProperties implements Serializable {
         @SuppressWarnings({ "squid:S2068" })
         private String password = "";
 
+        private String disclaimer = "";
+
         public String getPassword() {
             return password;
         }
@@ -86,6 +88,13 @@ public class UiProperties implements Serializable {
             this.user = user;
         }
 
+        public String getDisclaimer() {
+            return disclaimer;
+        }
+
+        public void setDisclaimer(final String disclaimer) {
+            this.disclaimer = disclaimer;
+        }
     }
 
     /**
@@ -138,6 +147,11 @@ public class UiProperties implements Serializable {
             private String security = "";
 
             /**
+             * Link to rollout related documentation.
+             */
+            private String rollout = "";
+
+            /**
              * Link to target filter view.
              */
             private String targetfilterView = "";
@@ -165,6 +179,10 @@ public class UiProperties implements Serializable {
 
             public String getSecurity() {
                 return security;
+            }
+
+            public String getRollout() {
+                return rollout;
             }
 
             public String getSystemConfigurationView() {
@@ -201,6 +219,10 @@ public class UiProperties implements Serializable {
 
             public void setSecurity(final String security) {
                 this.security = security;
+            }
+
+            public void setRollout(final String rollout) {
+                this.rollout = rollout;
             }
 
             public void setSystemConfigurationView(final String systemConfigurationView) {

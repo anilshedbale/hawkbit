@@ -19,7 +19,7 @@
 
    <groupId>org.eclipse.hawkbit</groupId>
    <artifactId>hawkbit-parent</artifactId>
-   <version>0.2.0-SNAPSHOT</version>
+   <version>0.3.0-SNAPSHOT</version>
    <packaging>pom</packaging>
    <name>hawkBit :: Parent</name>
 
@@ -33,18 +33,14 @@
    <modules>
       <module>hawkbit-core</module>
       <module>hawkbit-security-core</module>
-      <module>hawkbit-rest-core</module>
-      <module>hawkbit-mgmt-api</module>
-      <module>hawkbit-mgmt-resource</module>
-      <module>hawkbit-ddi-api</module>
-      <module>hawkbit-ddi-resource</module>
-      <module>hawkbit-dmf</module>
-      <module>hawkbit-repository</module>
       <module>hawkbit-security-integration</module>
       <module>hawkbit-http-security</module>
-      <module>hawkbit-ui</module>
+      <module>hawkbit-repository</module>
       <module>hawkbit-artifact-repository-filesystem</module>
       <module>hawkbit-autoconfigure</module>
+      <module>hawkbit-ui</module>
+      <module>hawkbit-rest</module>
+      <module>hawkbit-dmf</module>
       <module>hawkbit-test-report</module>
       <module>hawkbit-runtime</module>
       <module>hawkbit-starters</module>
@@ -64,7 +60,14 @@
    <developers>
       <developer>
          <id>kaizimmerm</id>
-         <email>kai.zimmermann@bosch-si.com</email>
+         <roles>
+            <role>Lead</role>
+            <role>Committer</role>
+         </roles>
+      </developer>
+      <developer>
+         <id>laverman</id>
+         <email>Jeroen.Laverman@bosch-si.com</email>
          <organization>Bosch Software Innovations GmbH</organization>
          <organizationUrl>https://www.bosch-si.com</organizationUrl>
          <roles>
@@ -81,6 +84,15 @@
       <developer>
          <id>schabdo</id>
          <email>Dominic.Schabel@bosch-si.com</email>
+         <organization>Bosch Software Innovations GmbH</organization>
+         <organizationUrl>https://www.bosch-si.com</organizationUrl>
+         <roles>
+            <role>Committer</role>
+         </roles>
+      </developer>
+      <developer>
+         <id>stefbehl</id>
+         <email>Stefan.Behl@bosch-si.com</email>
          <organization>Bosch Software Innovations GmbH</organization>
          <organizationUrl>https://www.bosch-si.com</organizationUrl>
          <roles>
@@ -112,7 +124,7 @@
    <properties>
       <java.version>1.8</java.version>
       <spring.boot.version>1.4.7.RELEASE</spring.boot.version>
-      <spring.cloud.version>Camden.SR6</spring.cloud.version>      
+      <spring.cloud.version>Camden.SR6</spring.cloud.version>
       <snapshotDependencyAllowed>true</snapshotDependencyAllowed>
 
       <!-- Spring boot version overrides (should be reviewed with every boot upgrade) - START -->
@@ -120,7 +132,7 @@
       <!-- Deserializer security vulnerability fixed -->
       <jackson.version>2.8.9</jackson.version>
       <!-- Performance fixes -->
-      <spring-hateoas.version>0.23.0.RELEASE</spring-hateoas.version>      
+      <spring-hateoas.version>0.23.0.RELEASE</spring-hateoas.version>
       <!-- Java 8 support -->
       <assertj.version>3.6.2</assertj.version>
       <!-- Repeatable migrations, Disabling clean etc. -->
@@ -137,7 +149,7 @@
       <!-- Avoid extra CQs through transitive dependencies -->
       <jboss-logging.version>3.2.1.Final</jboss-logging.version>
       <tomcat.version>8.0.28</tomcat.version>
-      
+
       <hibernate-validator.version>6.0.7.Final</hibernate-validator.version>
       <!-- Spring boot version overrides - END -->
 
@@ -155,6 +167,8 @@
       <maven.processor.plugin.version>3.1.0</maven.processor.plugin.version>
       <maven.surefire.plugin.version>2.17</maven.surefire.plugin.version>
       <maven.scm.plugin.version>1.9.4</maven.scm.plugin.version>
+      <!-- Java 9 support -->
+      <maven.compiler.plugin.version>3.7.0</maven.compiler.plugin.version>
 
       <!-- Misc libraries versions - START -->
       <cron-utils.version>5.0.5</cron-utils.version>
@@ -162,10 +176,10 @@
       <validation-api.version>2.0.1.Final</validation-api.version>
       <allure.version>1.5.4</allure.version>
       <eclipselink.version>2.7.1</eclipselink.version>
-      <org.powermock.version>1.6.5</org.powermock.version>
-      <gwtmockito.version>1.1.6</gwtmockito.version>
+      <gwtmockito.version>1.1.8</gwtmockito.version>
+      <powermock.version>1.6.5</powermock.version>
       <pl.pragmatists.version>1.0.2</pl.pragmatists.version>
-      <guava.version>19.0</guava.version>
+      <guava.version>25.0-jre</guava.version>
       <mariadb-java-client.version>2.0.2</mariadb-java-client.version>
       <mssql-jdbc.version>6.4.0.jre8</mssql-jdbc.version>
       <embedded-mongo.version>1.50.5</embedded-mongo.version>
@@ -193,15 +207,15 @@
       <sonar.links.ci>https://circleci.com/gh/eclipse/hawkbit</sonar.links.ci>
       <sonar.exclusions>**/target/generated-sources/apt/**,**/src/test/**,**/src/main/java/org/eclipse/hawkbit/repository/test/**</sonar.exclusions>
       <sonar.coverage.exclusions>**/src/main/java/org/eclipse/hawkbit/ui/**,**/target/generated-sources/apt/**,**/src/main/java/org/eclipse/hawkbit/repository/test/**,**/examples/**</sonar.coverage.exclusions>
-      <jacoco.version>0.7.9</jacoco.version>
+      <jacoco.version>0.8.1</jacoco.version>
       <jacoco.outputDir>${project.basedir}/../target/</jacoco.outputDir>
       <jacoco.reportPath>${jacoco.outputDir}/jacoco-ut.exec</jacoco.reportPath>
       <jacoco.itReportPath>${jacoco.outputDir}/jacoco-it.exec</jacoco.itReportPath>
       <sonar.jacoco.reportPaths>${jacoco.reportPath},${jacoco.itReportPath}</sonar.jacoco.reportPaths>
       <!-- Sonar - END -->
-      
+
       <!-- ************************ -->
-      <!-- Maven Surefire settings -->
+      <!-- Maven Surefire settings  -->
       <!-- ************************ -->
       <surefire.forkcount>1</surefire.forkcount>
    </properties>
@@ -211,6 +225,7 @@
          <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-compiler-plugin</artifactId>
+            <version>${maven.compiler.plugin.version}</version>
             <configuration>
                <compilerArgument>-Xlint:all</compilerArgument>
                <showWarnings>true</showWarnings>
@@ -317,10 +332,10 @@
                   </validHeaders>
                   <excludes>
                      <exclude>**/README</exclude>
-                     <exclude>3rd-dependencies/**</exclude>
+                     <exclude>.3rd-party/**</exclude>
+                     <exclude>.github/**</exclude>
                      <exclude>**/.git*</exclude>
                      <exclude>.git*</exclude>
-                     <exclude>**/*.sql</exclude>
                      <exclude>**/*.sql</exclude>
                      <exclude>eclipse_codeformatter.xml</exclude>
                      <exclude>**/addons.scss</exclude>
@@ -328,8 +343,12 @@
                      <exclude>.sonar</exclude>
                      <exclude>**/Dockerfile</exclude>
                      <exclude>**/docker-compose.yml</exclude>
+                     <exclude>**/docker-compose-stack.yml</exclude>
                      <exclude>**/.sonar/**</exclude>
-                     <exclude>docs/src/main/resources/**</exclude>
+                     <exclude>docs/content/**</exclude>
+                     <exclude>docs/layouts/**</exclude>
+                     <exclude>docs/static/**</exclude>
+                     <exclude>docs/*.toml</exclude>
                      <exclude>**/LICENSE*</exclude>
                   </excludes>
                   <mapping>
@@ -383,7 +402,7 @@
                   <reuseForks>true</reuseForks>
                   <forkCount>${surefire.forkcount}</forkCount>
                   <argLine>
-                     ${jacoco.agent.ut.arg}
+                     ${jacoco.agent.ut.arg} --illegal-access=warn --add-modules=java.xml.bind
                   </argLine>
                   <properties>
                      <property>
@@ -447,6 +466,27 @@
       </pluginManagement>
    </build>
    <profiles>
+    <profile>
+        <id>jdk-8</id>
+        <activation>
+            <jdk>1.8</jdk>
+        </activation>
+        <build>
+            <pluginManagement>
+                <plugins>
+                   <plugin>
+                       <groupId>org.apache.maven.plugins</groupId>
+                       <artifactId>maven-surefire-plugin</artifactId>
+                       <configuration>
+                           <argLine>
+                              ${jacoco.agent.ut.arg}
+                           </argLine>
+                       </configuration>
+                   </plugin>
+                </plugins>
+            </pluginManagement>
+        </build>
+    </profile>
       <profile>
          <id>nexus_staging</id>
          <activation>
@@ -578,7 +618,7 @@
          </dependency>
 
          <!-- Misc -->
-         
+
          <dependency>
             <groupId>com.rabbitmq</groupId>
             <artifactId>http-client</artifactId>
@@ -769,21 +809,21 @@
             <scope>test</scope>
          </dependency>
          <dependency>
+            <groupId>com.google.gwt.gwtmockito</groupId>
+            <artifactId>gwtmockito</artifactId>
+            <version>${gwtmockito.version}</version>
+            <scope>test</scope>
+         </dependency>
+         <dependency>
             <groupId>org.powermock</groupId>
             <artifactId>powermock-module-junit4</artifactId>
-            <version>${org.powermock.version}</version>
+            <version>${powermock.version}</version>
             <scope>test</scope>
          </dependency>
          <dependency>
             <groupId>org.powermock</groupId>
             <artifactId>powermock-api-mockito</artifactId>
-            <version>${org.powermock.version}</version>
-            <scope>test</scope>
-         </dependency>
-         <dependency>
-            <groupId>com.google.gwt.gwtmockito</groupId>
-            <artifactId>gwtmockito</artifactId>
-            <version>${gwtmockito.version}</version>
+            <version>${powermock.version}</version>
             <scope>test</scope>
          </dependency>
          <dependency>
@@ -812,6 +852,33 @@
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <version>${guava.version}</version>
+            <!-- https://github.com/google/guava/issues/2824 -->
+            <exclusions>
+               <exclusion>
+                  <groupId>com.google.j2objc</groupId>
+                  <artifactId>j2objc-annotations</artifactId>
+               </exclusion>
+               <exclusion>
+                  <groupId>com.google.code.findbugs</groupId>
+                  <artifactId>jsr305</artifactId>
+               </exclusion>
+               <exclusion>
+                  <groupId>org.checkerframework</groupId>
+                  <artifactId>checker-compat-qual</artifactId>
+               </exclusion>
+               <exclusion>
+                  <groupId>com.google.errorprone</groupId>
+                  <artifactId>error_prone_annotations</artifactId>
+               </exclusion>
+               <exclusion>
+                  <groupId>com.google.j2objc</groupId>
+                  <artifactId>j2objc-annotations</artifactId>
+               </exclusion>
+               <exclusion>
+                  <groupId>org.codehaus.mojo</groupId>
+                  <artifactId>animal-sniffer-annotations</artifactId>
+               </exclusion>
+            </exclusions>
          </dependency>
          <dependency>
             <groupId>com.jayway.awaitility</groupId>

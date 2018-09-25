@@ -10,6 +10,7 @@ package org.eclipse.hawkbit.repository;
 
 import java.util.Collection;
 import java.util.Optional;
+import java.util.Set;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -19,6 +20,7 @@ import org.eclipse.hawkbit.repository.event.remote.TargetAssignDistributionSetEv
 import org.eclipse.hawkbit.repository.exception.CancelActionNotAllowedException;
 import org.eclipse.hawkbit.repository.exception.EntityNotFoundException;
 import org.eclipse.hawkbit.repository.exception.IncompleteDistributionSetException;
+import org.eclipse.hawkbit.repository.exception.QuotaExceededException;
 import org.eclipse.hawkbit.repository.exception.RSQLParameterSyntaxException;
 import org.eclipse.hawkbit.repository.exception.RSQLParameterUnsupportedFieldException;
 import org.eclipse.hawkbit.repository.model.Action;
@@ -45,7 +47,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 public interface DeploymentManagement {
 
     /**
-     * method assigns the {@link DistributionSet} to all {@link Target}s by
+     * Assigns the addressed {@link DistributionSet} to all {@link Target}s by
      * their IDs with a specific {@link ActionType} and {@code forcetime}.
      *
      * @param dsID
@@ -66,13 +68,17 @@ public interface DeploymentManagement {
      * @throws EntityNotFoundException
      *             if either provided {@link DistributionSet} or {@link Target}s
      *             do not exist
+     * 
+     * @throws QuotaExceededException
+     *             if the maximum number of targets the distribution set can be
+     *             assigned to at once is exceeded
      */
     @PreAuthorize(SpringEvalExpressions.HAS_AUTH_READ_REPOSITORY_AND_UPDATE_TARGET)
     DistributionSetAssignmentResult assignDistributionSet(long dsID, @NotNull ActionType actionType,
             long forcedTimestamp, @NotEmpty Collection<String> controllerIDs);
 
     /**
-     * method assigns the {@link DistributionSet} to all {@link Target}s by
+     * Assigns the addressed {@link DistributionSet} to all {@link Target}s by
      * their IDs with a specific {@link ActionType} and {@code forcetime}.
      *
      * @param dsID
@@ -88,13 +94,17 @@ public interface DeploymentManagement {
      * @throws EntityNotFoundException
      *             if either provided {@link DistributionSet} or {@link Target}s
      *             do not exist
+     * 
+     * @throws QuotaExceededException
+     *             if the maximum number of targets the distribution set can be
+     *             assigned to at once is exceeded
      */
     @PreAuthorize(SpringEvalExpressions.HAS_AUTH_READ_REPOSITORY_AND_UPDATE_TARGET)
     DistributionSetAssignmentResult assignDistributionSet(long dsID,
             @NotEmpty Collection<TargetWithActionType> targets);
 
     /**
-     * method assigns the {@link DistributionSet} to all {@link Target}s by
+     * Assigns the addressed {@link DistributionSet} to all {@link Target}s by
      * their IDs with a specific {@link ActionType} and an action message.
      *
      * @param dsID
@@ -112,16 +122,20 @@ public interface DeploymentManagement {
      * @throws EntityNotFoundException
      *             if either provided {@link DistributionSet} or {@link Target}s
      *             do not exist
+     * 
+     * @throws QuotaExceededException
+     *             if the maximum number of targets the distribution set can be
+     *             assigned to at once is exceeded
      */
     @PreAuthorize(SpringEvalExpressions.HAS_AUTH_READ_REPOSITORY_AND_UPDATE_TARGET)
     DistributionSetAssignmentResult assignDistributionSet(long dsID, @NotEmpty Collection<TargetWithActionType> targets,
             String actionMessage);
 
     /**
-     * Method registers an "offline" assignment, i.e. adds a completed action
-     * for the given {@link DistributionSet} to the given {@link Target}s.
+     * Registers an "offline" assignment, i.e. adds a completed action for the
+     * given {@link DistributionSet} to the given {@link Target}s.
      * 
-     * The handling differs to hawkBit managed updates my means that:<br/>
+     * The handling differs to hawkBit-managed updates by means that:<br/>
      * 
      * <ol type="A">
      * <li>it ignores targets completely that are in
@@ -145,15 +159,18 @@ public interface DeploymentManagement {
      * @throws EntityNotFoundException
      *             if either provided {@link DistributionSet} or {@link Target}s
      *             do not exist
+     * 
+     * @throws QuotaExceededException
+     *             if the maximum number of targets the distribution set can be
+     *             assigned to at once is exceeded
      */
     @PreAuthorize(SpringEvalExpressions.HAS_AUTH_READ_REPOSITORY_AND_UPDATE_TARGET)
     DistributionSetAssignmentResult offlineAssignedDistributionSet(Long dsID, Collection<String> controllerIDs);
 
     /**
-     * Cancels given {@link Action} for given {@link Target}. The method will
-     * immediately add a {@link Status#CANCELED} status to the action. However,
-     * it might be possible that the controller will continue to work on the
-     * cancellation.
+     * Cancels the {@link Action} with the given ID. The method will immediately
+     * add a {@link Status#CANCELED} status to the action. However, it might be
+     * possible that the controller will continue to work on the cancellation.
      *
      * @param actionId
      *            to be canceled
@@ -170,7 +187,7 @@ public interface DeploymentManagement {
     Action cancelAction(long actionId);
 
     /**
-     * counts all actions associated to a specific target.
+     * Counts all actions associated to a specific target.
      *
      * @param rsqlParam
      *            rsql query string
@@ -202,7 +219,7 @@ public interface DeploymentManagement {
     long countActionsAll();
 
     /**
-     * counts all actions associated to a specific target.
+     * Counts all actions associated to a specific target.
      *
      * @param controllerId
      *            the target associated to the actions to count
@@ -441,4 +458,19 @@ public interface DeploymentManagement {
      *             if target with given ID does not exist
      */
     Optional<DistributionSet> getInstalledDistributionSet(@NotEmpty String controllerId);
+
+    /**
+     * Deletes actions which match one of the given action status and which have
+     * not been modified since the given (absolute) time-stamp.
+     * 
+     * @param status
+     *            Set of action status.
+     * @param lastModified
+     *            A time-stamp in milliseconds.
+     * 
+     * @return The number of action entries that were deleted.
+     */
+    @PreAuthorize(SpringEvalExpressions.IS_SYSTEM_CODE)
+    int deleteActionsByStatusAndLastModifiedBefore(@NotNull Set<Action.Status> status, long lastModified);
+
 }

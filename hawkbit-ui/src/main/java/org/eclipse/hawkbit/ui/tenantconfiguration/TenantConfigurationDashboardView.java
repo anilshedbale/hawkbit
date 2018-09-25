@@ -23,7 +23,7 @@ import org.eclipse.hawkbit.ui.AbstractHawkbitUI;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.UiProperties;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
-import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleSmallNoBorder;
+import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorder;
 import org.eclipse.hawkbit.ui.tenantconfiguration.ConfigurationItem.ConfigurationItemChangeListener;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
@@ -62,6 +62,8 @@ public class TenantConfigurationDashboardView extends CustomComponent implements
 
     private final PollingConfigurationView pollingConfigurationView;
 
+    private final RolloutConfigurationView rolloutConfigurationView;
+
     private final VaadinMessageSource i18n;
 
     private final UiProperties uiProperties;
@@ -90,6 +92,7 @@ public class TenantConfigurationDashboardView extends CustomComponent implements
         this.pollingConfigurationView = new PollingConfigurationView(i18n, controllerPollProperties,
                 tenantConfigurationManagement);
         this.repositoryConfigurationView = new RepositoryConfigurationView(i18n, tenantConfigurationManagement);
+        this.rolloutConfigurationView = new RolloutConfigurationView(i18n, tenantConfigurationManagement, uiProperties);
 
         this.i18n = i18n;
         this.uiProperties = uiProperties;
@@ -105,7 +108,7 @@ public class TenantConfigurationDashboardView extends CustomComponent implements
             configurationViews.add(defaultDistributionSetTypeLayout);
         }
         configurationViews.add(repositoryConfigurationView);
-
+        configurationViews.add(rolloutConfigurationView);
         configurationViews.add(authenticationConfigurationView);
         configurationViews.add(pollingConfigurationView);
         if (customConfigurationViews != null) {
@@ -137,14 +140,14 @@ public class TenantConfigurationDashboardView extends CustomComponent implements
         final HorizontalLayout hlayout = new HorizontalLayout();
         hlayout.setSpacing(true);
         saveConfigurationBtn = SPUIComponentProvider.getButton(UIComponentIdProvider.SYSTEM_CONFIGURATION_SAVE, "", "",
-                "", true, FontAwesome.SAVE, SPUIButtonStyleSmallNoBorder.class);
+                "", true, FontAwesome.SAVE, SPUIButtonStyleNoBorder.class);
         saveConfigurationBtn.setEnabled(false);
         saveConfigurationBtn.setDescription(i18n.getMessage("configuration.savebutton.tooltip"));
         saveConfigurationBtn.addClickListener(event -> saveConfiguration());
         hlayout.addComponent(saveConfigurationBtn);
 
         undoConfigurationBtn = SPUIComponentProvider.getButton(UIComponentIdProvider.SYSTEM_CONFIGURATION_CANCEL, "",
-                "", "", true, FontAwesome.UNDO, SPUIButtonStyleSmallNoBorder.class);
+                "", "", true, FontAwesome.UNDO, SPUIButtonStyleNoBorder.class);
         undoConfigurationBtn.setEnabled(false);
         undoConfigurationBtn.setDescription(i18n.getMessage("configuration.cancellbutton.tooltip"));
         undoConfigurationBtn.addClickListener(event -> undoConfiguration());

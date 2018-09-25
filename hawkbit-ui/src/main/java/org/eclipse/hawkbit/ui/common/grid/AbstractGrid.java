@@ -8,14 +8,19 @@
  */
 package org.eclipse.hawkbit.ui.common.grid;
 
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.Objects;
 
+import org.eclipse.hawkbit.repository.model.Action;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.components.RefreshableContainer;
+import org.eclipse.hawkbit.ui.management.actionhistory.ProxyAction;
+import org.eclipse.hawkbit.ui.management.actionhistory.ProxyActionStatus;
 import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
+import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.addons.lazyquerycontainer.LazyQueryContainer;
 import org.vaadin.spring.events.EventBus;
@@ -75,7 +80,18 @@ public abstract class AbstractGrid<T extends Indexed> extends Grid implements Re
         }
         setColumnReorderingAllowed(true);
         addNewContainerDS();
-        eventBus.subscribe(this);
+        if (doSubscribeToEventBus()) {
+            eventBus.subscribe(this);
+        }
+    }
+
+    /**
+     * Subscribes the view to the eventBus. Method has to be overriden (return
+     * false) if the view does not contain any listener to avoid Vaadin blowing
+     * up our logs with warnings.
+     */
+    protected boolean doSubscribeToEventBus() {
+        return true;
     }
 
     /**
@@ -129,7 +145,7 @@ public abstract class AbstractGrid<T extends Indexed> extends Grid implements Re
         }
 
         if (indexedContainer != null && indexedContainer.size() == 0) {
-            setData(SPUIDefinitions.NO_DATA);
+            setData(i18n.getMessage(UIMessageIdProvider.MESSAGE_NO_DATA));
         }
     }
 
@@ -284,8 +300,8 @@ public abstract class AbstractGrid<T extends Indexed> extends Grid implements Re
 
     /**
      * Template method invoked by {@link this#addNewContainerDS()} for adding
-     * properties to the container (usually by invoing
-     * {@link Container#addContainerProperty(Object, Class, Object))})
+     * properties to the container (usually by invoking { @link
+     * Container#addContainerProperty(Object, Class, Object))})
      */
     protected abstract void addContainerProperties();
 
@@ -581,7 +597,7 @@ public abstract class AbstractGrid<T extends Indexed> extends Grid implements Re
      * CellStyleGenerator that concerns about alignment in the grid cells.
      */
     protected static class AlignCellStyleGenerator implements CellStyleGenerator {
-        private static final long serialVersionUID = 5573570647129792429L;
+        private static final long serialVersionUID = 1L;
 
         private final String[] left;
         private final String[] center;
@@ -621,29 +637,41 @@ public abstract class AbstractGrid<T extends Indexed> extends Grid implements Re
     }
 
     /**
-     * Adds a tooltip to the 'Date and time' column in detailed format.
+     * Adds a tooltip to the 'Date and time' and 'Maintenance Window' columns in
+     * detailed format.
      */
-    public static class ModifiedTimeTooltipGenerator implements CellDescriptionGenerator {
-        private static final long serialVersionUID = -6617911967167729195L;
+    protected static class TooltipGenerator implements CellDescriptionGenerator {
 
-        private final String datePropertyId;
+        private static final long serialVersionUID = 1L;
 
-        /**
-         * Constructor.
-         *
-         * @param datePropertyId
-         */
-        public ModifiedTimeTooltipGenerator(final String datePropertyId) {
-            this.datePropertyId = datePropertyId;
+        private final VaadinMessageSource i18n;
+
+        public TooltipGenerator(final VaadinMessageSource i18n) {
+            this.i18n = i18n;
         }
 
         @Override
         public String getDescription(final CellReference cell) {
-            if (!datePropertyId.equals(cell.getPropertyId())) {
+            final String propertyId = (String) cell.getPropertyId();
+            switch (propertyId) {
+            case ProxyAction.PXY_ACTION_LAST_MODIFIED_AT:
+            case ProxyActionStatus.PXY_AS_CREATED_AT:
+                final Long timestamp = (Long) cell.getItem().getItemProperty(propertyId).getValue();
+                return SPDateTimeUtil.getFormattedDate(timestamp);
+
+            case ProxyAction.PXY_ACTION_MAINTENANCE_WINDOW:
+                final Action action = (Action) cell.getItem().getItemProperty(ProxyAction.PXY_ACTION).getValue();
+                return action.getMaintenanceWindowStartTime().map(this::getFormattedNextMaintenanceWindow).orElse(null);
+
+            default:
                 return null;
             }
-            final Long timestamp = (Long) cell.getItem().getItemProperty(datePropertyId).getValue();
-            return SPDateTimeUtil.getFormattedDate(timestamp);
+        }
+
+        private String getFormattedNextMaintenanceWindow(final ZonedDateTime nextAt) {
+            final long nextAtMilli = nextAt.toInstant().toEpochMilli();
+            return i18n.getMessage(UIMessageIdProvider.TOOLTIP_NEXT_MAINTENANCE_WINDOW,
+                    SPDateTimeUtil.getFormattedDate(nextAtMilli, SPUIDefinitions.LAST_QUERY_DATE_FORMAT_SHORT));
         }
     }
 
@@ -675,5 +703,9 @@ public abstract class AbstractGrid<T extends Indexed> extends Grid implements Re
         public Class<String> getPresentationType() {
             return String.class;
         }
+    }
+
+    protected String getActionLabeltext() {
+        return i18n.getMessage(UIMessageIdProvider.MESSAGE_UPLOAD_ACTION);
     }
 }

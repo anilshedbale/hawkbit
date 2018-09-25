@@ -16,10 +16,12 @@ import static org.junit.Assert.fail;
 import java.io.ByteArrayInputStream;
 import java.net.URISyntaxException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import javax.validation.ConstraintViolationException;
 
@@ -37,6 +39,7 @@ import org.eclipse.hawkbit.repository.event.remote.entity.SoftwareModuleUpdatedE
 import org.eclipse.hawkbit.repository.event.remote.entity.TargetCreatedEvent;
 import org.eclipse.hawkbit.repository.event.remote.entity.TargetUpdatedEvent;
 import org.eclipse.hawkbit.repository.exception.CancelActionNotAllowedException;
+import org.eclipse.hawkbit.repository.exception.InvalidTargetAttributeException;
 import org.eclipse.hawkbit.repository.exception.QuotaExceededException;
 import org.eclipse.hawkbit.repository.model.Action;
 import org.eclipse.hawkbit.repository.model.Action.Status;
@@ -430,7 +433,8 @@ public class ControllerManagementTest extends AbstractJpaIntegrationTest {
             @Expect(type = SoftwareModuleCreatedEvent.class, count = 6),
             @Expect(type = SoftwareModuleUpdatedEvent.class, count = 2) })
     public void hasTargetArtifactAssignedIsTrueWithMultipleArtifacts() {
-        final byte[] random = RandomUtils.nextBytes(5 * 1024);
+        final int artifactSize = 5 * 1024;
+        final byte[] random = RandomUtils.nextBytes(artifactSize);
 
         final DistributionSet ds = testdataFactory.createDistributionSet("");
         final DistributionSet ds2 = testdataFactory.createDistributionSet("2");
@@ -438,9 +442,9 @@ public class ControllerManagementTest extends AbstractJpaIntegrationTest {
 
         // create two artifacts with identical SHA1 hash
         final Artifact artifact = artifactManagement.create(new ByteArrayInputStream(random),
-                ds.findFirstModuleByType(osType).get().getId(), "file1", false);
+                ds.findFirstModuleByType(osType).get().getId(), "file1", false, artifactSize);
         final Artifact artifact2 = artifactManagement.create(new ByteArrayInputStream(random),
-                ds2.findFirstModuleByType(osType).get().getId(), "file1", false);
+                ds2.findFirstModuleByType(osType).get().getId(), "file1", false, artifactSize);
         assertThat(artifact.getSha1Hash()).isEqualTo(artifact2.getSha1Hash());
 
         assertThat(
@@ -793,7 +797,7 @@ public class ControllerManagementTest extends AbstractJpaIntegrationTest {
             @Expect(type = TargetUpdatedEvent.class, count = 2) })
     public void updateTargetAttributesFailsIfTooManyEntries() throws Exception {
         final String controllerId = "test123";
-        final int allowedAttributes = 10;
+        final int allowedAttributes = quotaManagement.getMaxAttributeEntriesPerTarget();
         testdataFactory.createTarget(controllerId);
 
         assertThatExceptionOfType(QuotaExceededException.class).isThrownBy(() -> securityRule
@@ -831,6 +835,39 @@ public class ControllerManagementTest extends AbstractJpaIntegrationTest {
             testData.put(keyPrefix + i, valuePrefix);
         }
         controllerManagement.updateControllerAttributes(controllerId, testData, null);
+    }
+
+    @Test
+    @Description("Checks if invalid values of attribute-key and attribute-value are handled correctly")
+    public void updateTargetAttributesFailsForInvalidAttributes() {
+        final String keyTooLong = "123456789012345678901234567890123";
+        final String keyValid = "12345678901234567890123456789012";
+        final String valueTooLong = "123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789";
+        final String valueValid = "12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678";
+        final String keyNull = null;
+
+        final String controllerId = "targetId123";
+        testdataFactory.createTarget(controllerId);
+
+        assertThatExceptionOfType(InvalidTargetAttributeException.class)
+                .isThrownBy(() -> controllerManagement.updateControllerAttributes(controllerId,
+                        Collections.singletonMap(keyTooLong, valueValid), null))
+                .as("Attribute with key too long should not be created");
+
+        assertThatExceptionOfType(InvalidTargetAttributeException.class)
+                .isThrownBy(() -> controllerManagement.updateControllerAttributes(controllerId,
+                        Collections.singletonMap(keyTooLong, valueTooLong), null))
+                .as("Attribute with key too long and value too long should not be created");
+
+        assertThatExceptionOfType(InvalidTargetAttributeException.class)
+                .isThrownBy(() -> controllerManagement.updateControllerAttributes(controllerId,
+                        Collections.singletonMap(keyValid, valueTooLong), null))
+                .as("Attribute with value too long should not be created");
+
+        assertThatExceptionOfType(InvalidTargetAttributeException.class)
+                .isThrownBy(() -> controllerManagement.updateControllerAttributes(controllerId,
+                        Collections.singletonMap(keyNull, valueValid), null))
+                .as("Attribute with key NULL should not be created");
     }
 
     @Test
@@ -880,4 +917,69 @@ public class ControllerManagementTest extends AbstractJpaIntegrationTest {
         assertThat(messages.get(0)).as("Message of action-status").isEqualTo("proceeding message 2");
         assertThat(messages.get(1)).as("Message of action-status").isEqualTo("proceeding message 1");
     }
+
+    @Test
+    @Description("Verifies that the quota specifying the maximum number of status entries per action is enforced.")
+    @ExpectEvents({ @Expect(type = TargetCreatedEvent.class, count = 2),
+            @Expect(type = DistributionSetCreatedEvent.class, count = 2),
+            @Expect(type = ActionCreatedEvent.class, count = 2), @Expect(type = TargetUpdatedEvent.class, count = 2),
+            @Expect(type = TargetAssignDistributionSetEvent.class, count = 2),
+            @Expect(type = SoftwareModuleCreatedEvent.class, count = 6) })
+    public void addActionStatusUpdatesUntilQuotaIsExceeded() {
+
+        // any distribution set assignment causes 1 status entity to be created
+        final int maxStatusEntries = quotaManagement.getMaxStatusEntriesPerAction() - 1;
+
+        // test for informational status
+        final Long actionId1 = assignDistributionSet(testdataFactory.createDistributionSet("ds1"),
+                testdataFactory.createTargets(1, "t1")).getActions().get(0);
+        assertThat(actionId1).isNotNull();
+        for (int i = 0; i < maxStatusEntries; ++i) {
+            controllerManagement.addInformationalActionStatus(entityFactory.actionStatus().create(actionId1)
+                    .status(Status.WARNING).message("Msg " + i).occurredAt(System.currentTimeMillis()));
+        }
+        assertThatExceptionOfType(QuotaExceededException.class).isThrownBy(() -> controllerManagement
+                .addInformationalActionStatus(entityFactory.actionStatus().create(actionId1).status(Status.WARNING)));
+
+        // test for update status (and mixed case)
+        final Long actionId2 = assignDistributionSet(testdataFactory.createDistributionSet("ds2"),
+                testdataFactory.createTargets(1, "t2")).getActions().get(0);
+        assertThat(actionId2).isNotEqualTo(actionId1);
+        for (int i = 0; i < maxStatusEntries; ++i) {
+            controllerManagement.addUpdateActionStatus(entityFactory.actionStatus().create(actionId2)
+                    .status(Status.WARNING).message("Msg " + i).occurredAt(System.currentTimeMillis()));
+        }
+        assertThatExceptionOfType(QuotaExceededException.class).isThrownBy(() -> controllerManagement
+                .addInformationalActionStatus(entityFactory.actionStatus().create(actionId2).status(Status.WARNING)));
+
+    }
+
+    @Test
+    @Description("Verifies that the quota specifying the maximum number of messages per action status is enforced.")
+    @ExpectEvents({ @Expect(type = TargetCreatedEvent.class, count = 1),
+            @Expect(type = DistributionSetCreatedEvent.class, count = 1),
+            @Expect(type = ActionCreatedEvent.class, count = 1), @Expect(type = TargetUpdatedEvent.class, count = 1),
+            @Expect(type = TargetAssignDistributionSetEvent.class, count = 1),
+            @Expect(type = SoftwareModuleCreatedEvent.class, count = 3) })
+    public void createActionStatusWithTooManyMessages() {
+
+        final int maxMessages = quotaManagement.getMaxMessagesPerActionStatus();
+
+        final Long actionId = assignDistributionSet(testdataFactory.createDistributionSet("ds1"),
+                testdataFactory.createTargets(1)).getActions().get(0);
+        assertThat(actionId).isNotNull();
+
+        final List<String> messages = Lists.newArrayList();
+        IntStream.range(0, maxMessages).forEach(i -> messages.add(i, "msg"));
+
+        assertThat(controllerManagement.addInformationalActionStatus(
+                entityFactory.actionStatus().create(actionId).messages(messages).status(Status.WARNING))).isNotNull();
+
+        messages.add("msg");
+        assertThatExceptionOfType(QuotaExceededException.class)
+                .isThrownBy(() -> controllerManagement.addInformationalActionStatus(
+                        entityFactory.actionStatus().create(actionId).messages(messages).status(Status.WARNING)));
+
+    }
+
 }

@@ -8,46 +8,15 @@
  */
 package org.eclipse.hawkbit.ui.utils;
 
-import com.vaadin.ui.themes.ValoTheme;
-
 /**
  * RepositoryConstants required for Label.
  */
 public final class SPUILabelDefinitions {
 
     /**
-     * Style - Message.
-     */
-    public static final String SP_LABEL_MESSAGE_STYLE = "count-msg-box";
-    /**
-     * Message hint text style.
-     */
-    public static final String SP_MESSAGE_HINT_TEXT = "message-hint-text";
-    /**
-     * Style - Success.
-     */
-    public static final String SP_NOTIFICATION_SUCCESS_MESSAGE_STYLE = ValoTheme.NOTIFICATION_SUCCESS + " "
-            + ValoTheme.NOTIFICATION_TRAY;
-    /**
-     * Style - Error.
-     */
-    public static final String SP_NOTIFICATION_ERROR_MESSAGE_STYLE = ValoTheme.NOTIFICATION_ERROR + " "
-            + ValoTheme.NOTIFICATION_TRAY;
-
-    /**
-     * Style - Warning.
-     */
-    public static final String SP_NOTIFICATION_WARNING_MESSAGE_STYLE = ValoTheme.NOTIFICATION_WARNING + " "
-            + ValoTheme.NOTIFICATION_TRAY;
-    /**
      * Delay - Notification.
      */
     public static final int SP_DELAY = 1000;
-
-    /**
-     * Cannot be deleted message.
-     */
-    public static final String ACTION_NOT_ALLOWED = "Action not allowed";
 
     /**
      * NAME.
@@ -83,6 +52,11 @@ public final class SPUILabelDefinitions {
      * ID.
      */
     public static final String VAR_ID = "id";
+
+    /**
+     * ID for software module
+     */
+    public static final String VAR_SWM_ID = "swId";
 
     /**
      * DESC.
@@ -133,6 +107,16 @@ public final class SPUILabelDefinitions {
      * Last modified date.
      */
     public static final String VAR_MODIFIED_DATE = "modifiedDate";
+
+    /**
+     * Approve/Deny remark.
+     */
+    public static final String VAR_APPROVAL_REMARK = "approvalRemark";
+    /**
+     * Approval decider.
+     */
+    public static final String VAR_APPROVAL_DECIDED_BY = "approvalDecidedBy";
+
     /**
      * Poll Status.
      */
@@ -174,33 +158,9 @@ public final class SPUILabelDefinitions {
     public static final String VAR_TARGET_STATUS = "updateStatus";
 
     /**
-     * Discard all label.
-     */
-    public static final String DISCARD_ALL = "Discard All";
-    /**
-     * Discard label.
-     */
-    public static final String DISCARD = "Discard";
-
-    /**
-     * Delete Custom Filter.
-     */
-    public static final String DELETE_CUSTOM_FILTER = "Delete Custom Filter";
-
-    /**
-     * Update Custom Filter.
-     */
-    public static final String UPDATE_CUSTOM_FILTER = "Update Custom Filter";
-
-    /**
      * HTML space.
      */
     public static final String HTML_SPACE = "&nbsp;";
-
-    /**
-     * Type.
-     */
-    public static final String TYPE = "Filter by type";
 
     /**
      * Name.
@@ -208,39 +168,9 @@ public final class SPUILabelDefinitions {
     public static final String NAME = "name";
 
     /**
-     * Upload - process button caption.
-     */
-    public static final String PROCESS = "Process";
-
-    /**
-     * Upload results - label.
-     */
-    public static final String UPLOAD_RESULT = "Upload result";
-
-    /**
-     * Upload - close button caption.
-     */
-    public static final String CLOSE = "Close";
-
-    /**
-     * Success.
-     */
-    public static final String SUCCESS = "Success";
-
-    /**
-     * Failed.
-     */
-    public static final String FAILED = "Failed";
-
-    /**
      * Name and description label.
      */
     public static final String NAME_VERSION = "nameAndVersion";
-
-    /**
-     * Submit button label.
-     */
-    public static final String SUBMIT = "Submit";
 
     /**
      * Artifact Details Icon.
@@ -248,34 +178,14 @@ public final class SPUILabelDefinitions {
     public static final String ARTIFACT_ICON = "artifactDtls";
 
     /**
-     * Confirmation popup - Delete all button caption.
-     */
-    public static final String BUTTON_DELETE_ALL = "button.delete.all";
-
-    /**
-     * Confirmation popup - Discard all button caption.
-     */
-    public static final String BUTTON_DISCARD_ALL = "button.discard.all";
-
-    /**
      * Created User.
      */
     public static final String VAR_CREATED_USER = "createdBy";
 
     /**
-     * Create Filter.
-     */
-    public static final String VAR_CREATE_FILTER = "Create Filter";
-
-    /**
      * Target filter query - target table status icon column name.
      */
     public static final String STATUS_ICON = "statusIcon";
-
-    /**
-     * Create custom target filter header - query text field length.
-     */
-    public static final int TARGET_FILTER_QUERY_TEXT_FIELD_LENGTH = 1024;
 
     /**
      * Status - column property.
@@ -291,11 +201,6 @@ public final class SPUILabelDefinitions {
      * Number of groups in rollout- column property.
      */
     public static final String VAR_NUMBER_OF_GROUPS = "numberOfGroups";
-
-    /**
-     * Rollout action button description.
-     */
-    public static final String ACTION = "Action";
 
     /**
      * Total target coulmn property name.

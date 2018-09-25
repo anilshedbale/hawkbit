@@ -8,7 +8,6 @@
  */
 package org.eclipse.hawkbit.ui.common.grid;
 
-import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus;
 import org.vaadin.spring.events.EventBus.UIEventBus;
@@ -26,10 +25,12 @@ import com.vaadin.ui.VerticalLayout;
  * and grid header {@link DefaultGridHeader}.
  */
 public abstract class AbstractGridComponentLayout extends VerticalLayout {
-    private static final long serialVersionUID = -3766179797384539821L;
 
-    protected final transient EventBus.UIEventBus eventBus;
-    protected final VaadinMessageSource i18n;
+    private static final long serialVersionUID = 1L;
+
+    private final transient EventBus.UIEventBus eventBus;
+
+    private final VaadinMessageSource i18n;
 
     private AbstractOrderedLayout gridHeader;
     private Grid grid;
@@ -40,10 +41,7 @@ public abstract class AbstractGridComponentLayout extends VerticalLayout {
      * Constructor.
      *
      * @param i18n
-     * @param deploymentManagement
      * @param eventBus
-     * @param notification
-     * @param managementUIState
      */
     public AbstractGridComponentLayout(final VaadinMessageSource i18n, final UIEventBus eventBus) {
         this.i18n = i18n;
@@ -59,7 +57,18 @@ public abstract class AbstractGridComponentLayout extends VerticalLayout {
         buildLayout();
         setSizeFull();
         setImmediate(true);
-        eventBus.subscribe(this);
+        if (doSubscribeToEventBus()) {
+            eventBus.subscribe(this);
+        }
+    }
+
+    /**
+     * Subscribes the view to the eventBus. Method has to be overriden (return
+     * false) if the view does not contain any listener to avoid Vaadin blowing
+     * up our logs with warnings.
+     */
+    protected boolean doSubscribeToEventBus() {
+        return true;
     }
 
     /**
@@ -185,7 +194,6 @@ public abstract class AbstractGridComponentLayout extends VerticalLayout {
         private Layout createFooterMessageComponent() {
             final HorizontalLayout footerLayout = new HorizontalLayout();
             footerLayout.addComponent(getFooterMessageLabel());
-            footerLayout.setStyleName(SPUIStyleDefinitions.FOOTER_LAYOUT);
             footerLayout.setWidth(100, Unit.PERCENTAGE);
             return footerLayout;
         }
@@ -197,4 +205,13 @@ public abstract class AbstractGridComponentLayout extends VerticalLayout {
          */
         protected abstract Label getFooterMessageLabel();
     }
+
+    protected VaadinMessageSource getI18n() {
+        return i18n;
+    }
+
+    protected EventBus.UIEventBus getEventBus() {
+        return eventBus;
+    }
+
 }

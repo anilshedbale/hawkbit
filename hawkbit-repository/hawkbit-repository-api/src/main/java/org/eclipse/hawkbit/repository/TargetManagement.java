@@ -109,8 +109,7 @@ public interface TargetManagement {
             Long installedOrAssignedDistributionSetId, Boolean selectTargetWithNoTag, String... tagNames);
 
     /**
-     * Counts number of targets with given
-     * {@link Target#getInstalledDistributionSet()}.
+     * Counts number of targets with given with given distribution set Id
      *
      * @param distId
      *            to search for
@@ -203,10 +202,10 @@ public interface TargetManagement {
     void delete(@NotEmpty Collection<Long> targetIDs);
 
     /**
-     * Deletes target with the given IDs.
+     * Deletes target with the given controller ID.
      *
      * @param controllerID
-     *            the ID of the targets to be deleted
+     *            the controller ID of the target to be deleted
      * 
      * @throws EntityNotFoundException
      *             if target with given ID does not exist
@@ -630,4 +629,25 @@ public interface TargetManagement {
      *             if target with given ID does not exist
      */
     Map<String, String> getControllerAttributes(@NotEmpty String controllerId);
+
+    /**
+     * Trigger given {@link Target} to update its attributes.
+     *
+     * @param controllerId
+     *            of the target
+     *
+     * @throws EntityNotFoundException
+     *             if target with given ID does not exist
+     */
+    void requestControllerAttributes(@NotEmpty String controllerId);
+
+    /**
+     * Check if update of given {@link Target} attributes is already requested.
+     * 
+     * @param controllerId
+     *            of target
+     * @return {@code true}: update of controller attributes triggered.
+     *         {@code false}: update of controller attributes not requested.
+     */
+    boolean isControllerAttributesRequested(@NotEmpty String controllerId);
 }

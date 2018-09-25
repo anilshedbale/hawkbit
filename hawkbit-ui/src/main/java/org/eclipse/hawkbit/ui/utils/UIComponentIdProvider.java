@@ -12,21 +12,25 @@ package org.eclipse.hawkbit.ui.utils;
 import org.eclipse.hawkbit.tenancy.configuration.TenantConfigurationProperties.TenantConfigurationKey;
 
 /**
- * Interface to provide the unchanged constants.
+ * Class that contains the unique ids of the UI components.
  */
 public final class UIComponentIdProvider {
     /**
      * ID-Target.
      */
     public static final String TARGET_TABLE_ID = "target.tableId";
+
     /**
-     * caption for add target window
+     * ID of the confirmation window when assigning a distribution set to a
+     * target
      */
-    public static final String TARGET_ADD_CAPTION = "caption.add.new.target";
+    public static final String DIST_SET_TO_TARGET_ASSIGNMENT_CONFIRM_ID = "dist.to.target.assign.confirm.id";
+
     /**
-     * caption for update target window
+     * ID of the confirmation window when assigning a software module to a
+     * distribution set
      */
-    public static final String TARGET_UPDATE_CAPTION = "caption.update.target";
+    public static final String SOFT_MODULE_TO_DIST_ASSIGNMENT_CONFIRM_ID = "swm.to.dist.assign.confirm.id";
     /**
      * ID- Targ.Cont ID.
      */
@@ -39,14 +43,6 @@ public final class UIComponentIdProvider {
      * ID-Targ.Disc.
      */
     public static final String TARGET_ADD_DESC = "target.add.desc";
-    /**
-     * ID-Targ.DEL.
-     */
-    public static final String TARGET_DELETE_ALL = "target.delete.all";
-    /**
-     * ID-SW.DEL.
-     */
-    public static final String SW_DELETE_ALL = "swmodule.delete.all";
     /**
      * ID-Targ.Edit.icon.
      */
@@ -69,6 +65,17 @@ public final class UIComponentIdProvider {
     public static final String TARGET_FILTER_ADD_ICON_ID = "target.filter.add.id";
 
     /**
+     * ID for menubar for configuring target tags
+     */
+    public static final String TARGET_MENU_BAR_ID = "target.menu.bar.id";
+
+    /**
+     * ID for the cancel button in the tag header, when updating or deleting a
+     * tag is selected
+     */
+    public static final String CANCEL_UPDATE_TAG_ID = "cancel.update.tag.id";
+
+    /**
      * ID for NO TAG for targets
      */
     public static final String NO_TAG_TARGET = "no.tag.target";
@@ -77,10 +84,6 @@ public final class UIComponentIdProvider {
      * ID-Dist. on deployment and distribution view
      */
     public static final String DIST_TABLE_ID = "dist.tableId";
-
-    public static final String DIST_ADD_CAPTION = "caption.add.dist";
-
-    public static final String DIST_UPDATE_CAPTION = "caption.update.dist";
 
     /**
      * ID-Dist.Name.
@@ -98,10 +101,6 @@ public final class UIComponentIdProvider {
      * ID-Dist.desc.
      */
     public static final String DIST_ADD_DESC = "dist.add.desc";
-    /**
-     * /** ID-Dist.DELETE.
-     */
-    public static final String DIST_DELETE_ALL = "dist.delete.all";
     /**
      * ID-Dist.MigCheck.
      */
@@ -126,6 +125,12 @@ public final class UIComponentIdProvider {
      * ID-Dist.PIN.
      */
     public static final String DIST_PIN_BUTTON = "dist.pin.button";
+
+    /**
+     * ID for menubar for configuring distribution set tags
+     */
+    public static final String DIST_TAG_MENU_BAR_ID = "distribution.set.menu.bar.id";
+
     /**
      * ID for NO TAG for distribution sets
      */
@@ -146,14 +151,12 @@ public final class UIComponentIdProvider {
      * ID - soft.module.vendor.
      */
     public static final String SOFT_MODULE_VENDOR = "soft.module.vendor";
+
     /**
-     * ID - Save Assign.
+     * ID for menubar for configuring software module types
      */
-    public static final String SAVE_ASSIGNMENT = "save.actions.popup.assign";
-    /**
-     * ID - Discard Assign.
-     */
-    public static final String DISCARD_ASSIGNMENT = "discard.actions.popup.assign";
+    public static final String SOFT_MODULE_TYPE_MENU_BAR_ID = "soft.module.type.menu.bar.id";
+
     /**
      * ID - Delete Distribution SetType Save.
      */
@@ -226,10 +229,6 @@ public final class UIComponentIdProvider {
      */
     public static final String TARGET_DROP_FILTER_ICON = "target.drop.filter.icon";
 
-    /**
-     * Pending action button id.
-     */
-    public static final String PENDING_ACTION_BUTTON = "pending.action.button";
     /**
      * Action history grid Id.
      */
@@ -325,10 +324,6 @@ public final class UIComponentIdProvider {
     public static final String MAINTENANCE_WINDOW_SCHEDULE_TRANSLATOR_ID = "maintenance.window.schedule.translator";
 
     /**
-     * Delete button wrapper id.
-     */
-    public static final String DELETE_BUTTON_WRAPPER_ID = "delete.button";
-    /**
      * tag color preview button id.
      */
     public static final String TAG_COLOR_PREVIEW_ID = "tag.color.preview";
@@ -356,14 +351,6 @@ public final class UIComponentIdProvider {
      * Upload - type button id.
      */
     public static final String UPLOAD_TYPE_BUTTON_PREFIX = "upload.type.button.";
-    /**
-     * Upload - process button id.
-     */
-    public static final String UPLOAD_PROCESS_BUTTON = "upload.process.button";
-    /**
-     * Upload - discard button id.
-     */
-    public static final String UPLOAD_DISCARD_BUTTON = "upload.discard.button";
 
     /**
      * Upload - artifact detail close button.
@@ -409,6 +396,12 @@ public final class UIComponentIdProvider {
      * Upload - artifact result table.
      */
     public static final String UPLOAD_RESULT_TABLE = "upload.result.table";
+
+    /**
+     * Upload - artifact upload error reason.
+     */
+    public static final String UPLOAD_ERROR_REASON = "upload-error-reason";
+
     /**
      * Upload - software module search text id.
      */
@@ -419,14 +412,14 @@ public final class UIComponentIdProvider {
     public static final String SW_MODULE_SEARCH_RESET_ICON = "sw.search.reset.icon";
 
     /**
-     * Upload - artifact upload error reason.
-     */
-    public static final String UPLOAD_ERROR_REASON = "upload-error-reason";
-
-    /**
      * Upload - artifact upload - Software module add button.
      */
     public static final String SW_MODULE_ADD_BUTTON = "sw.module.add.button";
+
+    /**
+     * Create Software Module dialog.
+     */
+    public static final String SW_MODULE_CREATE_DIALOG = "sw.module.create.dialog";
 
     /**
      * Upload - artifact upload - Software module type combo id.
@@ -449,9 +442,19 @@ public final class UIComponentIdProvider {
     public static final String UPLOAD_SW_MODULE_EDIT_BUTTON = "swmodule.edit.button";
 
     /**
+     * Artifact upload - sw module metadata button id.
+     */
+    public static final String UPLOAD_SW_MODULE_METADATA_BUTTON = "swmodule.metadata.button";
+
+    /**
      * Ds edit button id.
      */
     public static final String DS_EDIT_BUTTON = "ds.edit.button";
+
+    /**
+     * Ds metadata button id.
+     */
+    public static final String DS_METADATA_BUTTON = "ds.metadata.button";
     /**
      * Upload Artifact details max table Id.
      */
@@ -517,6 +520,16 @@ public final class UIComponentIdProvider {
     public static final String SYSTEM_CONFIGURATION_SAVE = "system.configuration.save";
 
     /**
+     * Combobox for action types
+     */
+    public static final String SYSTEM_CONFIGURATION_ACTION_CLEANUP_ACTION_TYPES = "system.configuration.autocleanup.action.types";
+
+    /**
+     * Combobox for action expiry in days
+     */
+    public static final String SYSTEM_CONFIGURATION_ACTION_CLEANUP_ACTION_EXPIRY = "system.configuration.autocleanup.action.expiry";
+
+    /**
      * ID for save button in pop-up-windows instance of commonDialogWindow
      */
     public static final String SAVE_BUTTON = "common.dialog.window.save";
@@ -525,6 +538,16 @@ public final class UIComponentIdProvider {
      * ID for cancel button in pop-up-windows instance of commonDialogWindow
      */
     public static final String CANCEL_BUTTON = "common.dialog.window.cancel";
+
+    /**
+     * ID for update tags and types icon
+     */
+    public static final String UPDATE_TAG_ID = "update.";
+
+    /**
+     * ID for delete tags and types icon
+     */
+    public static final String DELETE_TAG_ID = "delete.";
 
     /**
      * Cancel button is.
@@ -617,6 +640,11 @@ public final class UIComponentIdProvider {
     public static final String TARGET_SECURITY_TOKEN = "target.security.token";
 
     /**
+     * Id of attributes update button in target details.
+     */
+    public static final String TARGET_ATTRIBUTES_UPDATE = "target.attributes.update";
+
+    /**
      * Id of maximize/minimize icon of table - Software module table.
      */
     public static final String TARGET_MAX_MIN_TABLE_ICON = "target.max.min.table.icon";
@@ -657,9 +685,108 @@ public final class UIComponentIdProvider {
     public static final String ADD_TARGET_TAG = "target.tag.add";
 
     /**
+     * Target tag configure icon id.
+     */
+    public static final String CONFIGURE_TARGET_TAG = "target.tag.configure";
+
+    /**
      * New distribution set tag add icon id.
      */
     public static final String ADD_DISTRIBUTION_TAG = "distribution.tag.add";
+
+    /**
+     * New distribution set tag configure icon id.
+     */
+    public static final String CONFIGURE_DISTRIBUTION_TAG = "distribution.tag.configure";
+
+    /**
+     * New Target tag name field id.
+     */
+    public static final String NEW_TARGET_TAG_NAME = "target.tag.add.name";
+
+    /**
+     * New Distribution tag name field id.
+     */
+    public static final String NEW_DISTRIBUTION_TAG_NAME = "distribution.tag.add.name";
+
+    /**
+     * New Software Module name field id.
+     */
+    public static final String NEW_SOFTWARE_TYPE_NAME = "software.type.add.name";
+
+    /**
+     * New Distribution Type name field id.
+     */
+    public static final String NEW_DISTRIBUTION_TYPE_NAME = "distribution.set.type.add.name";
+
+    /**
+     * New Distribution Type key field id.
+     */
+    public static final String NEW_DISTRIBUTION_TYPE_KEY = "distribution.set.type.add.key";
+
+    /**
+     * New Create Update option group id.
+     */
+    public static final String CREATE_OPTION_GROUP_DISTRIBUTION_SET_TYPE_ID = "create.option.group.dist.set.type.id";
+
+    /**
+     * Assign option group id(Firmware/Software).
+     */
+    public static final String ASSIGN_OPTION_GROUP_SOFTWARE_MODULE_TYPE_ID = "assign.option.group.soft.module.type.id";
+
+    /**
+     * New Software Module desc field id.
+     */
+    public static final String NEW_SOFTWARE_TYPE_DESC = "software.type.add.desc";
+    /**
+     * Hide filter by dist type layout button.
+     */
+    public static final String HIDE_FILTER_DIST_TYPE = "hide.filter.dist.type.layout";
+    /**
+     * New Distribution Type distribution field id.
+     */
+    public static final String NEW_DISTRIBUTION_TYPE_DESC = "distribution.set.type.add.desc";
+
+    /**
+     * New Distribution Type distribution field id.
+     */
+    public static final String NEW_DISTRIBUTION_SET_TYPE_NAME_COMBO = "distribution.set.type.name.combo";
+
+    /**
+     * New Software Module key field id.
+     */
+    public static final String NEW_SOFTWARE_TYPE_KEY = "software.type.add.key";
+
+    /**
+     * New Target tag desc field id.
+     */
+    public static final String NEW_TARGET_TAG_DESC = "target.tag.add.desc";
+
+    /**
+     * New Distribution tag desc field id.
+     */
+    public static final String NEW_DISTRIBUTION_TAG_DESC = "distribution.tag.add.desc";
+
+    /**
+     * New distribution Type set tag add icon id.
+     */
+    public static final String ADD_DISTRIBUTION_TYPE_TAG = "distribution.type.tag.add";
+
+    /**
+     * New distribution Type set tag configure icon id.
+     */
+    public static final String CONFIGURE_DISTRIBUTION_TYPE_TAG = "distribution.type.tag.configure";
+
+    /**
+     * New software module set type add icon id.
+     */
+    public static final String ADD_SOFTWARE_MODULE_TYPE = "softwaremodule.type.add";
+
+    /**
+     * New software module set type configure icon id.
+     */
+    public static final String CONFIGURE_SOFTWARE_MODULE_TYPE = "softwaremodule.type.configure";
+
     /**
      * Bulk target upload - distribution set combo.
      */
@@ -669,10 +796,12 @@ public final class UIComponentIdProvider {
      * Bulk target upload - description.
      */
     public static final String BULK_UPLOAD_DESC = "bulkupload.description";
+
     /**
      * Bulk target upload - tag field.
      */
     public static final String BULK_UPLOAD_TAG = "bulkupload.tag";
+
     /**
      * Bulk target upload - count label.
      */
@@ -765,7 +894,6 @@ public final class UIComponentIdProvider {
     /**
      * Target bulk upload minimize button id.
      */
-
     public static final String BULK_UPLOAD_CLOSE_BUTTON_ID = "bulk.upload.close.button.id";
 
     /**
@@ -867,6 +995,16 @@ public final class UIComponentIdProvider {
     public static final String ROLLOUT_RUN_BUTTON_ID = ROLLOUT_ACTION_ID + ".6";
 
     /**
+     * Rollout approval button id.
+     */
+    public static final String ROLLOUT_APPROVAL_BUTTON_ID = ROLLOUT_ACTION_ID + ".11";
+
+    /**
+     * Rollout approve/deny option button group id.
+     */
+    public static final String ROLLOUT_APPROVAL_OPTIONGROUP_ID = ROLLOUT_ACTION_ID + ".12";
+
+    /**
      * Rollout pause button id.
      */
     public static final String ROLLOUT_PAUSE_BUTTON_ID = ROLLOUT_ACTION_ID + ".7";
@@ -939,19 +1077,9 @@ public final class UIComponentIdProvider {
     public static final String VALIDATION_STATUS_ICON_ID = "validation.status.icon";
 
     /**
-     * Artifact upload status popup - minimize button id.
-     */
-    public static final String UPLOAD_STATUS_POPUP_MINIMIZE_BUTTON_ID = "artifact.upload.minimize.button.id";
-
-    /**
      * Artifact upload status popup - close button id.
      */
     public static final String UPLOAD_STATUS_POPUP_CLOSE_BUTTON_ID = "artifact.upload.close.button.id";
-
-    /**
-     * Artifact upload status popup - resize button id.
-     */
-    public static final String UPLOAD_STATUS_POPUP_RESIZE_BUTTON_ID = "artifact.upload.resize.button.id";
 
     /**
      * Artifact upload view - upload status button id.
@@ -959,9 +1087,14 @@ public final class UIComponentIdProvider {
     public static final String UPLOAD_STATUS_BUTTON = "artficat.upload.status.button.id";
 
     /**
-     * Artifact uplaod view - uplod status popup id.
+     * Artifact upload view - uplod status popup id.
      */
     public static final String UPLOAD_STATUS_POPUP_ID = "artifact.upload.status.popup.id";
+
+    /**
+     * Artifact upload view - uplod status popup grid.
+     */
+    public static final String UPLOAD_STATUS_POPUP_GRID = "artifact.upload.status.popup.grid";
 
     /**
      * Software module table - Manage metadata id.
@@ -1081,6 +1214,45 @@ public final class UIComponentIdProvider {
      * {@link TenantConfigurationKey#REPOSITORY_ACTIONS_AUTOCLOSE_ENABLED}.
      */
     public static final String REPOSITORY_ACTIONS_AUTOCLOSE_CHECKBOX = "repositoryactionsautoclosecheckbox";
+
+    /**
+     * Configuration checkbox for
+     * {@link TenantConfigurationKey#REPOSITORY_ACTIONS_AUTOCLOSE_ENABLED}.
+     */
+    public static final String REPOSITORY_ACTIONS_AUTOCLEANUP_CHECKBOX = "repositoryactionsautocleanupcheckbox";
+
+    /**
+     * Configuration checkbox for
+     * {@link TenantConfigurationKey#ROLLOUT_APPROVAL_ENABLED}
+     */
+    public static final String ROLLOUT_APPROVAL_ENABLED_CHECKBOX = "rollout.approve.enabled.checkbox";
+
+    /**
+     * Id of the rollout approval remark field
+     */
+    public static final String ROLLOUT_APPROVAL_REMARK_FIELD_ID = "rollout.approve.remark";
+
+    /**
+     * ID for the menu bar item to update a tag or type
+     */
+    public static final String CONFIG_MENU_BAR_UPDATE = "edit";
+
+    /**
+     * ID for the menu bar item to delete a tag or type
+     */
+    public static final String CONFIG_MENU_BAR_DELETE = "delete";
+
+    /**
+     * ID for the menu bar item to create a tag or type
+     */
+    public static final String CONFIG_MENU_BAR_CREATE = "create";
+
+    /**
+     * Artifact upload status popup - minimize button id.
+     */
+    public static final String UPLOAD_STATUS_POPUP_MINIMIZE_BUTTON_ID = "artifact.upload.minimize.button.id";
+
+    public static final String SAVE_ACTION_RADIO_FORCED = "save.action.radio.forced";
 
     /**
      * /* Private Constructor.

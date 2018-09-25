@@ -42,25 +42,10 @@ public final class SPUIDefinitions {
     public static final int DIST_TYPE_SIZE = 8;
 
     /**
-     * Action history active column.
-     */
-    public static final String ACTION_HIS_TBL_ACTIVE = "Active";
-
-    /**
-     * Action history action id column.
-     */
-    public static final String ACTION_HIS_TBL_ACTION_ID = "Action Id";
-
-    /**
      * Action history active hidden column. This is using to generate active
      * icons under active column.
      */
     public static final String ACTION_HIS_TBL_ACTIVE_HIDDEN = "Active_Hidden";
-
-    /**
-     * Action history distribution set column.
-     */
-    public static final String ACTION_HIS_TBL_DIST = "Distributionset";
 
     /**
      * Action history Action Id hidden column.
@@ -68,143 +53,15 @@ public final class SPUIDefinitions {
     public static final String ACTION_HIS_TBL_ACTION_ID_HIDDEN = "DistributionsetId";
 
     /**
-     * Action history date & time column.
-     */
-    public static final String ACTION_HIS_TBL_DATETIME = "Date and time";
-
-    /**
-     * Action history status column.
-     */
-    public static final String ACTION_HIS_TBL_STATUS = "Status";
-
-    /**
-     * Actions column.
-     */
-    public static final String ACTIONS_COLUMN = "Actions";
-
-    /**
-     * Action history messages of particular action update.
-     */
-    public static final String ACTION_HIS_TBL_MSGS = "Messages";
-
-    /**
      * Action history hidden column of messages of particular action update.
      */
     public static final String ACTION_HIS_TBL_MSGS_HIDDEN = "Messages_Hidden";
-
-    /**
-     * Action history layout - rollout name column.
-     */
-    public static final String ACTION_HIS_TBL_ROLLOUT_NAME = "Rollout name";
 
     /**
      * /** Action history status hidden column. This is using to generate status
      * icons under status coloumn.
      */
     public static final String ACTION_HIS_TBL_STATUS_HIDDEN = "Status_Hidden";
-
-    /**
-     * Action history action type column.
-     */
-    public static final String ACTION_HIS_TBL_FORCED = "Forced";
-
-    /**
-     * Action history action type column.
-     */
-    public static final String ACTION_HIS_TBL_TIMEFORCED = "Time-Forced";
-
-    /**
-     * Action history helping constant.
-     */
-    public static final String ACTIVE = "active";
-
-    /**
-     * Action history helping constant.
-     */
-    public static final String IN_ACTIVE = "inactive";
-
-    /**
-     * Action history helping constant.
-     */
-    public static final String SCHEDULED = "scheduled";
-
-    public static final String TARGET_TAG_BUTTON = "Target Tag";
-
-    public static final String DISTRIBUTION_TAG_BUTTON = "Distribution Tag";
-
-    /**
-     * New Target tag name field id.
-     */
-    public static final String NEW_TARGET_TAG_NAME = "target.tag.add.name";
-
-    /**
-     * New Software Module name field id.
-     */
-    public static final String NEW_SOFTWARE_TYPE_NAME = "software.type.add.name";
-
-    /**
-     * New Distribution Type name field id.
-     */
-    public static final String NEW_DISTRIBUTION_TYPE_NAME = "distribution.set.type.add.name";
-
-    /**
-     * New Distribution Type key field id.
-     */
-    public static final String NEW_DISTRIBUTION_TYPE_KEY = "distribution.set.type.add.key";
-
-    /**
-     * New Create Update option group id.
-     */
-    public static final String CREATE_OPTION_GROUP_DISTRIBUTION_SET_TYPE_ID = "create.option.group.dist.set.type.id";
-
-    /**
-     * Assign option group id(Firmware/Software).
-     */
-    public static final String ASSIGN_OPTION_GROUP_SOFTWARE_MODULE_TYPE_ID = "assign.option.group.soft.module.type.id";
-
-    /**
-     * New Software Module desc field id.
-     */
-    public static final String NEW_SOFTWARE_TYPE_DESC = "software.type.add.desc";
-    /**
-     * Hide filter by dist type layout button.
-     */
-    public static final String HIDE_FILTER_DIST_TYPE = "hide.filter.dist.type.layout";
-    /**
-     * New Distribution Type distribution field id.
-     */
-    public static final String NEW_DISTRIBUTION_TYPE_DESC = "distribution.set.type.add.desc";
-
-    /**
-     * New Distribution Type distribution field id.
-     */
-    public static final String NEW_DISTRIBUTION_SET_TYPE_NAME_COMBO = "distribution.set.type.name.combo";
-
-    /**
-     * New Software Module key field id.
-     */
-    public static final String NEW_SOFTWARE_TYPE_KEY = "software.type.add.key";
-    /**
-     * New Target tag desc field id.
-     */
-    public static final String NEW_TARGET_TAG_DESC = "target.tag.add.desc";
-    /**
-     * New distribution Type set tag add icon id.
-     */
-    public static final String ADD_DISTRIBUTION_TYPE_TAG = "distribution.type.tag.add";
-    /**
-     * New software module set type add icon id.
-     */
-    public static final String ADD_SOFTWARE_MODULE_TYPE = "softwaremodule.type.add";
-    /**
-     * No data.
-     */
-    public static final String NO_DATA = "No Data";
-
-    /**
-     * No Available.
-     */
-    public static final String DATA_AVAILABLE = "Data available";
 
     /**
      * Filter by status key.
@@ -282,11 +139,6 @@ public final class SPUIDefinitions {
     public static final String COMBO_BOX_SPECIFIC_STYLE = "combo-specific-style";
 
     /**
-     * Length of Assignment details table in save popup window.
-     */
-    public static final int ACCORDION_TAB_DETAILS_PAGE_LENGTH = 7;
-
-    /**
      * Target and distribution column width in save popup window.
      */
     public static final float TARGET_DISTRIBUTION_COLUMN_WIDTH = 2.8F;
@@ -331,15 +183,6 @@ public final class SPUIDefinitions {
     public static final String TYPE_KEY = "type-key";
 
     /**
-     * Tag combo style.
-     */
-    public static final String FILTER_TYPE_COMBO_STYLE = "filter-combo-specific-style";
-    /**
-     * Color label style.
-     */
-    public static final String COLOR_LABEL_STYLE = "color-label-style";
-
-    /**
      * Minimum width required to show tags for both target and distribution
      * table without horizontal scroll. In case browser width is less than this
      * width, the tags will get hidden automatically and also horizontal scroll
@@ -359,7 +202,7 @@ public final class SPUIDefinitions {
     /**
      * Space.
      */
-    static final String SPACE = "&nbsp;";
+    public static final String SPACE = "&nbsp;";
 
     /**
      * Distribution tag button id prefix.
@@ -408,15 +251,15 @@ public final class SPUIDefinitions {
      * automatically and also horizontal scroll bars get displayed. Used for
      * Responsive UI.
      */
-    static final int REQ_MIN_UPLOAD_BROWSER_WIDTH = 1250;
+    public static final int REQ_MIN_UPLOAD_BROWSER_WIDTH = 1250;
 
     public static final int MIN_UPLOAD_CONFIRMATION_POPUP_WIDTH = 1000;
 
     public static final int MIN_UPLOAD_CONFIRMATION_POPUP_HEIGHT = 310;
 
-    static final int MAX_UPLOAD_CONFIRMATION_POPUP_WIDTH = 1050;
+    public static final int MAX_UPLOAD_CONFIRMATION_POPUP_WIDTH = 1050;
 
-    static final int MAX_UPLOAD_CONFIRMATION_POPUP_HEIGHT = 360;
+    public static final int MAX_UPLOAD_CONFIRMATION_POPUP_HEIGHT = 360;
 
     /** Artifact upload related entries - end. **/
 
@@ -484,9 +327,14 @@ public final class SPUIDefinitions {
     public static final String NO_TAG_BUTTON_ID = "no_tag_button";
 
     /**
-     * CUSTOM_FILTER_DELETE.
+     * DELETE column/button.
      */
-    public static final String CUSTOM_FILTER_DELETE = "Delete";
+    public static final String DELETE = "Delete";
+
+    /**
+     * EDIT column/button.
+     */
+    public static final String EDIT = "Edit";
 
     /**
      * TARGET_FILTER_MANAGEMENT - header caption .
@@ -519,14 +367,20 @@ public final class SPUIDefinitions {
     public static final Direction TARGET_TABLE_CREATE_AT_SORT_ORDER = Direction.ASC;
 
     /**
-     * Rollout list view - header caption .
-     */
-    public static final String ROLLOUT_LIST_HEADER_CAPTION = "Rollouts";
-
-    /**
      * BUTTON- STATUS.
      */
     public static final String SP_BUTTON_STATUS_STYLE = "targetStatusBtn";
+
+    public static final String ACTION_HIS_TBL_MAINTENANCE_WINDOW = "Maintenance Window";
+
+    /**
+     * id for delete icon in entity table
+     */
+    public static final String DELETE_ENTITY = "deleteEntity";
+
+    public static final String UPDATE_FILTER_BUTTON_COLUMN = "updateFilterButton";
+
+    public static final String DELETE_FILTER_BUTTON_COLUMN = "deleteFilterButton";
 
     /**
      * /** Constructor.

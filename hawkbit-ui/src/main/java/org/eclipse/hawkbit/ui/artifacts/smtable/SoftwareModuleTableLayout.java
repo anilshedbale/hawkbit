@@ -38,13 +38,13 @@ public class SoftwareModuleTableLayout extends AbstractTableLayout<SoftwareModul
         final SwMetadataPopupLayout swMetadataPopupLayout = new SwMetadataPopupLayout(i18n, uiNotification, eventBus,
                 softwareModuleManagement, entityFactory, permChecker);
         this.softwareModuleTable = new SoftwareModuleTable(eventBus, i18n, uiNotification, artifactUploadState,
-                softwareModuleManagement, uploadViewClientCriterion, swMetadataPopupLayout);
+                softwareModuleManagement, uploadViewClientCriterion, permChecker);
 
         final SoftwareModuleAddUpdateWindow softwareModuleAddUpdateWindow = new SoftwareModuleAddUpdateWindow(i18n,
                 uiNotification, eventBus, softwareModuleManagement, softwareModuleTypeManagement, entityFactory,
                 softwareModuleTable);
 
-        super.init(
+        super.init(i18n,
                 new SoftwareModuleTableHeader(i18n, permChecker, eventBus, artifactUploadState,
                         softwareModuleAddUpdateWindow),
                 softwareModuleTable,

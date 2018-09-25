@@ -20,8 +20,8 @@ import org.eclipse.hawkbit.repository.model.SoftwareModuleType;
 import org.eclipse.hawkbit.ui.artifacts.event.SoftwareModuleEvent;
 import org.eclipse.hawkbit.ui.common.CommonDialogWindow;
 import org.eclipse.hawkbit.ui.common.CommonDialogWindow.SaveDialogCloseListener;
-import org.eclipse.hawkbit.ui.common.EmptyStringValidator;
 import org.eclipse.hawkbit.ui.common.SoftwareModuleTypeBeanQuery;
+import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
 import org.eclipse.hawkbit.ui.common.builder.TextAreaBuilder;
 import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilder;
 import org.eclipse.hawkbit.ui.common.builder.WindowBuilder;
@@ -83,6 +83,8 @@ public class SoftwareModuleAddUpdateWindow extends CustomComponent {
     private FormLayout formLayout;
 
     private final AbstractTable<SoftwareModule> softwareModuleTable;
+
+    private Label softwareModuleType;
 
     /**
      * Constructor for SoftwareModuleAddUpdateWindow
@@ -211,20 +213,19 @@ public class SoftwareModuleAddUpdateWindow extends CustomComponent {
 
     private void createRequiredComponents() {
 
-        nameTextField = createTextField("textfield.name", UIComponentIdProvider.SOFT_MODULE_NAME);
-        nameTextField.addValidator(new EmptyStringValidator(i18n));
+        nameTextField = createTextField("textfield.name", UIComponentIdProvider.SOFT_MODULE_NAME,
+                SoftwareModule.NAME_MAX_SIZE);
 
-        versionTextField = createTextField("textfield.version", UIComponentIdProvider.SOFT_MODULE_VERSION);
-        versionTextField.addValidator(new EmptyStringValidator(i18n));
+        versionTextField = createTextField("textfield.version", UIComponentIdProvider.SOFT_MODULE_VERSION,
+                SoftwareModule.VERSION_MAX_SIZE);
 
-        vendorTextField = createTextField("textfield.vendor", UIComponentIdProvider.SOFT_MODULE_VENDOR);
-        vendorTextField.setRequired(false);
-        vendorTextField.setNullRepresentation("");
-
-        descTextArea = new TextAreaBuilder().caption(i18n.getMessage("textfield.description")).style("text-area-style")
-                .prompt(i18n.getMessage("textfield.description")).id(UIComponentIdProvider.ADD_SW_MODULE_DESCRIPTION)
+        vendorTextField = new TextFieldBuilder(SoftwareModule.VENDOR_MAX_SIZE)
+                .caption(i18n.getMessage("textfield.vendor")).id(UIComponentIdProvider.SOFT_MODULE_VENDOR)
                 .buildTextComponent();
-        descTextArea.setNullRepresentation("");
+
+        descTextArea = new TextAreaBuilder(SoftwareModule.DESCRIPTION_MAX_SIZE)
+                .caption(i18n.getMessage("textfield.description")).style("text-area-style")
+                .id(UIComponentIdProvider.ADD_SW_MODULE_DESCRIPTION).buildTextComponent();
 
         typeComboBox = SPUIComponentProvider.getComboBox(i18n.getMessage("upload.swmodule.type"), "", null, null, true,
                 null, i18n.getMessage("upload.swmodule.type"));
@@ -234,9 +235,9 @@ public class SoftwareModuleAddUpdateWindow extends CustomComponent {
         typeComboBox.setImmediate(Boolean.TRUE);
     }
 
-    private TextField createTextField(final String in18Key, final String id) {
-        return new TextFieldBuilder().caption(i18n.getMessage(in18Key)).required(true).prompt(i18n.getMessage(in18Key))
-                .immediate(true).id(id).buildTextComponent();
+    private TextField createTextField(final String in18Key, final String id, final int maxLength) {
+        return new TextFieldBuilder(maxLength).caption(i18n.getMessage(in18Key)).required(true, i18n).id(id)
+                .buildTextComponent();
     }
 
     private void populateTypeNameCombo() {
@@ -250,7 +251,9 @@ public class SoftwareModuleAddUpdateWindow extends CustomComponent {
         nameTextField.clear();
         versionTextField.clear();
         descTextArea.clear();
-        typeComboBox.clear();
+        if (!editSwModule) {
+            typeComboBox.clear();
+        }
         editSwModule = Boolean.FALSE;
     }
 
@@ -263,7 +266,13 @@ public class SoftwareModuleAddUpdateWindow extends CustomComponent {
 
         formLayout = new FormLayout();
         formLayout.setCaption(null);
-        formLayout.addComponent(typeComboBox);
+        if (editSwModule) {
+            formLayout.addComponent(softwareModuleType);
+        } else {
+            formLayout.addComponent(typeComboBox);
+            typeComboBox.focus();
+        }
+
         formLayout.addComponent(nameTextField);
         formLayout.addComponent(versionTextField);
         formLayout.addComponent(vendorTextField);
@@ -272,12 +281,11 @@ public class SoftwareModuleAddUpdateWindow extends CustomComponent {
         setCompositionRoot(formLayout);
 
         final CommonDialogWindow window = new WindowBuilder(SPUIDefinitions.CREATE_UPDATE_WINDOW)
-                .caption(i18n.getMessage("upload.caption.add.new.swmodule")).content(this).layout(formLayout).i18n(i18n)
-                .saveDialogCloseListener(new SaveOnDialogCloseListener()).buildCommonDialogWindow();
+                .caption(i18n.getMessage("caption.create.new", i18n.getMessage("caption.software.module"))).id(UIComponentIdProvider.SW_MODULE_CREATE_DIALOG)
+                .content(this).layout(formLayout).i18n(i18n).saveDialogCloseListener(new SaveOnDialogCloseListener())
+                .buildCommonDialogWindow();
         nameTextField.setEnabled(!editSwModule);
         versionTextField.setEnabled(!editSwModule);
-        typeComboBox.setEnabled(!editSwModule);
-        typeComboBox.focus();
 
         return window;
     }
@@ -295,11 +303,7 @@ public class SoftwareModuleAddUpdateWindow extends CustomComponent {
             versionTextField.setValue(swModule.getVersion());
             vendorTextField.setValue(swModule.getVendor());
             descTextArea.setValue(swModule.getDescription());
-
-            if (swModule.getType().isDeleted()) {
-                typeComboBox.addItem(swModule.getType().getName());
-            }
-            typeComboBox.setValue(swModule.getType().getName());
+            softwareModuleType = new LabelBuilder().name(swModule.getType().getName()).caption("Type").buildLabel();
         });
     }
 

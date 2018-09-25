@@ -11,6 +11,7 @@ package org.eclipse.hawkbit.repository.jpa;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -18,8 +19,10 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import javax.persistence.EntityManager;
+import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.JoinType;
@@ -28,6 +31,7 @@ import javax.persistence.criteria.Root;
 
 import org.eclipse.hawkbit.repository.ActionFields;
 import org.eclipse.hawkbit.repository.DeploymentManagement;
+import org.eclipse.hawkbit.repository.QuotaManagement;
 import org.eclipse.hawkbit.repository.RepositoryConstants;
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
@@ -46,6 +50,7 @@ import org.eclipse.hawkbit.repository.jpa.model.JpaDistributionSet;
 import org.eclipse.hawkbit.repository.jpa.model.JpaTarget;
 import org.eclipse.hawkbit.repository.jpa.model.JpaTarget_;
 import org.eclipse.hawkbit.repository.jpa.rsql.RSQLUtility;
+import org.eclipse.hawkbit.repository.jpa.utils.QuotaHelper;
 import org.eclipse.hawkbit.repository.model.Action;
 import org.eclipse.hawkbit.repository.model.Action.ActionType;
 import org.eclipse.hawkbit.repository.model.Action.Status;
@@ -59,6 +64,7 @@ import org.eclipse.hawkbit.repository.model.TargetUpdateStatus;
 import org.eclipse.hawkbit.repository.model.TargetWithActionType;
 import org.eclipse.hawkbit.repository.rsql.VirtualPropertyReplacer;
 import org.eclipse.hawkbit.security.SystemSecurityContext;
+import org.eclipse.hawkbit.tenancy.TenantAware;
 import org.eclipse.hawkbit.tenancy.configuration.TenantConfigurationProperties.TenantConfigurationKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,6 +90,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 
 /**
@@ -100,6 +107,17 @@ public class JpaDeploymentManagement implements DeploymentManagement {
      */
     private static final int ACTION_PAGE_LIMIT = 1000;
 
+    private static final String QUERY_DELETE_ACTIONS_BY_STATE_AND_LAST_MODIFIED_DEFAULT = "DELETE FROM sp_action WHERE tenant=#tenant AND status IN (%s) AND last_modified_at<#last_modified_at LIMIT "
+            + ACTION_PAGE_LIMIT;
+
+    private static final EnumMap<Database, String> QUERY_DELETE_ACTIONS_BY_STATE_AND_LAST_MODIFIED;
+
+    static {
+        QUERY_DELETE_ACTIONS_BY_STATE_AND_LAST_MODIFIED = new EnumMap<>(Database.class);
+        QUERY_DELETE_ACTIONS_BY_STATE_AND_LAST_MODIFIED.put(Database.SQL_SERVER, "DELETE TOP (" + ACTION_PAGE_LIMIT
+                + ") FROM sp_action WHERE tenant=#tenant AND status IN (%s) AND last_modified_at<#last_modified_at ");
+    }
+
     private final EntityManager entityManager;
     private final ActionRepository actionRepository;
     private final DistributionSetRepository distributionSetRepository;
@@ -115,7 +133,9 @@ public class JpaDeploymentManagement implements DeploymentManagement {
     private final OnlineDsAssignmentStrategy onlineDsAssignmentStrategy;
     private final OfflineDsAssignmentStrategy offlineDsAssignmentStrategy;
     private final TenantConfigurationManagement tenantConfigurationManagement;
+    private final QuotaManagement quotaManagement;
     private final SystemSecurityContext systemSecurityContext;
+    private final TenantAware tenantAware;
     private final Database database;
 
     JpaDeploymentManagement(final EntityManager entityManager, final ActionRepository actionRepository,
@@ -124,8 +144,8 @@ public class JpaDeploymentManagement implements DeploymentManagement {
             final AuditorAware<String> auditorProvider, final ApplicationEventPublisher eventPublisher,
             final ApplicationContext applicationContext, final AfterTransactionCommitExecutor afterCommit,
             final VirtualPropertyReplacer virtualPropertyReplacer, final PlatformTransactionManager txManager,
-            final TenantConfigurationManagement tenantConfigurationManagement,
-            final SystemSecurityContext systemSecurityContext, final Database database) {
+            final TenantConfigurationManagement tenantConfigurationManagement, final QuotaManagement quotaManagement,
+            final SystemSecurityContext systemSecurityContext, final TenantAware tenantAware, final Database database) {
         this.entityManager = entityManager;
         this.actionRepository = actionRepository;
         this.distributionSetRepository = distributionSetRepository;
@@ -139,11 +159,13 @@ public class JpaDeploymentManagement implements DeploymentManagement {
         this.virtualPropertyReplacer = virtualPropertyReplacer;
         this.txManager = txManager;
         onlineDsAssignmentStrategy = new OnlineDsAssignmentStrategy(targetRepository, afterCommit, eventPublisher,
-                applicationContext, actionRepository, actionStatusRepository);
+                applicationContext, actionRepository, actionStatusRepository, quotaManagement);
         offlineDsAssignmentStrategy = new OfflineDsAssignmentStrategy(targetRepository, afterCommit, eventPublisher,
-                applicationContext, actionRepository, actionStatusRepository);
+                applicationContext, actionRepository, actionStatusRepository, quotaManagement);
         this.tenantConfigurationManagement = tenantConfigurationManagement;
+        this.quotaManagement = quotaManagement;
         this.systemSecurityContext = systemSecurityContext;
+        this.tenantAware = tenantAware;
         this.database = database;
     }
 
@@ -215,8 +237,8 @@ public class JpaDeploymentManagement implements DeploymentManagement {
      *            a list of all targets and their action type
      * @param actionMessage
      *            an optional message to be written into the action status
-     * @param offline
-     *            to <code>true</code> in offline case
+     * @param assignmentStrategy
+     *            the assignment strategy (online /offline)
      * @return the assignment result
      *
      * @throw IncompleteDistributionSetException if mandatory
@@ -239,6 +261,11 @@ public class JpaDeploymentManagement implements DeploymentManagement {
 
         final List<String> controllerIDs = targetsWithActionType.stream().map(TargetWithActionType::getControllerId)
                 .collect(Collectors.toList());
+
+        // enforce the 'max targets per manual assignment' quota
+        if (!controllerIDs.isEmpty()) {
+            assertMaxTargetsPerManualAssignmentQuota(set.getId(), controllerIDs.size());
+        }
 
         LOG.debug("assignDistribution({}) to {} targets", set, controllerIDs.size());
 
@@ -318,6 +345,20 @@ public class JpaDeploymentManagement implements DeploymentManagement {
                 targetManagement);
     }
 
+    /**
+     * Enforces the quota defining the maximum number of {@link Target}s per
+     * manual {@link DistributionSet} assignment.
+     * 
+     * @param id
+     *            of the distribution set
+     * @param requested
+     *            number of targets to check
+     */
+    private void assertMaxTargetsPerManualAssignmentQuota(final Long id, final int requested) {
+        QuotaHelper.assertAssignmentQuota(id, requested, quotaManagement.getMaxTargetsPerManualAssignment(),
+                Target.class, DistributionSet.class, null);
+    }
+
     @Override
     @Transactional(isolation = Isolation.READ_COMMITTED)
     @Retryable(include = {
@@ -365,7 +406,7 @@ public class JpaDeploymentManagement implements DeploymentManagement {
             throw new ForceQuitActionNotAllowedException(action.getId() + " is not active and cannot be force quit");
         }
 
-        LOG.warn("action ({}) was still activ and has been force quite.", action);
+        LOG.warn("action ({}) was still active and has been force quite.", action);
 
         // document that the status has been retrieved
         actionStatusRepository.save(new JpaActionStatus(action, Status.CANCELED, System.currentTimeMillis(),
@@ -664,6 +705,48 @@ public class JpaDeploymentManagement implements DeploymentManagement {
         throwExceptionIfTargetDoesNotExist(controllerId);
 
         return distributionSetRepository.findInstalledAtTarget(controllerId);
+    }
+
+    @Override
+    @Transactional(readOnly = false)
+    public int deleteActionsByStatusAndLastModifiedBefore(final Set<Status> status, final long lastModified) {
+        if (status.isEmpty()) {
+            return 0;
+        }
+        /*
+         * We use a native query here because Spring JPA does not support to
+         * specify a LIMIT clause on a DELETE statement. However, for this
+         * specific use case (action cleanup), we must specify a row limit to
+         * reduce the overall load on the database.
+         */
+
+        final int statusCount = status.size();
+        final Status[] statusArr = status.toArray(new Status[statusCount]);
+
+        final String queryStr = String.format(getQueryForDeleteActionsByStatusAndLastModifiedBeforeString(database),
+                formatInClauseWithNumberKeys(statusCount));
+        final Query deleteQuery = entityManager.createNativeQuery(queryStr);
+
+        IntStream.range(0, statusCount)
+                .forEach(i -> deleteQuery.setParameter(String.valueOf(i), statusArr[i].ordinal()));
+        deleteQuery.setParameter("tenant", tenantAware.getCurrentTenant().toUpperCase());
+        deleteQuery.setParameter("last_modified_at", lastModified);
+
+        LOG.debug("Action cleanup: Executing the following (native) query: {}", deleteQuery);
+        return deleteQuery.executeUpdate();
+    }
+
+    private static String getQueryForDeleteActionsByStatusAndLastModifiedBeforeString(Database database) {
+        return QUERY_DELETE_ACTIONS_BY_STATE_AND_LAST_MODIFIED.getOrDefault(database,
+                QUERY_DELETE_ACTIONS_BY_STATE_AND_LAST_MODIFIED_DEFAULT);
+    }
+
+    private static String formatInClauseWithNumberKeys(final int count) {
+        return formatInClause(IntStream.range(0, count).mapToObj(String::valueOf).collect(Collectors.toList()));
+    }
+
+    private static String formatInClause(final Collection<String> elements) {
+        return "#" + Joiner.on(",#").join(elements);
     }
 
 }
